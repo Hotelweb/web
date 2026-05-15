@@ -10,21 +10,22 @@ export function HotelCard({ name, address, onClick }: HotelCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full bg-white rounded-xl shadow-md p-3.5 flex items-center justify-between cursor-pointer transition-all duration-200 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-      style={{
-        boxShadow: "0 2px 12px rgba(0, 0, 0, 0.08)",
-      }}
+      className="w-full glass-card glass-card-hover rounded-2xl p-4 flex items-center justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       aria-label={`View details for ${name}`}
     >
       <div className="text-left flex-1 min-w-0">
-        <h2 className="font-bold text-gray-900 text-[14px] leading-tight">
-          {name}
-        </h2>
-        <p className="text-gray-500 text-[12px] mt-0.5 leading-snug">
+        <div className="flex items-center gap-2">
+          {/* Gold accent dot */}
+          <div className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
+          <h2 className="font-bold text-text text-[14px] leading-tight truncate">
+            {name}
+          </h2>
+        </div>
+        <p className="text-text-muted text-[12px] mt-1 leading-snug pl-4">
           {address}
         </p>
       </div>
-      <div className="flex-shrink-0 ml-2">
+      <div className="flex-shrink-0 ml-3 w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center transition-colors duration-200 group-hover:bg-primary/10">
         <ArrowRightIcon />
       </div>
     </button>

@@ -51,7 +51,7 @@ export function ServicesGrid({ onServiceClick }: ServicesGridProps) {
 
   return (
     <div
-      className="grid grid-cols-3 gap-y-5 gap-x-2 px-3"
+      className="grid grid-cols-3 sm:grid-cols-4 gap-y-5 gap-x-2 px-3"
       role="navigation"
       aria-label="Hotel services"
     >

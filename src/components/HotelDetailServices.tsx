@@ -52,7 +52,7 @@ const iconMap: Record<string, React.ReactNode> = {
 function DefaultServiceIcon() {
   return (
     <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-      <g stroke="#4A5D23" strokeWidth="1.5" fill="none">
+      <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
         <circle cx="24" cy="24" r="14" />
         <path d="M24 16v8l5 5" />
       </g>
@@ -67,7 +67,7 @@ interface HotelDetailServicesProps {
 export function HotelDetailServices({ services }: HotelDetailServicesProps) {
   return (
     <div
-      className="grid grid-cols-3 gap-y-5 gap-x-2 px-3"
+      className="grid grid-cols-3 sm:grid-cols-4 gap-y-5 gap-x-2 px-3"
       role="navigation"
       aria-label="Hotel services"
     >

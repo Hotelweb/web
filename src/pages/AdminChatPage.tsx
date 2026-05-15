@@ -31,10 +31,8 @@ export function AdminChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // TODO: Replace with actual auth - for now use hotel_id as staff user id
   const staffUserId = 1;
 
-  // Load hotel and sessions
   useEffect(() => {
     if (!hotelId) return;
 
@@ -55,7 +53,6 @@ export function AdminChatPage() {
     load();
   }, [hotelId]);
 
-  // WebSocket connection
   useEffect(() => {
     if (!hotelId) return;
 
@@ -70,7 +67,6 @@ export function AdminChatPage() {
     newSocket.on(
       "sessionUpdate",
       (data: { sessionId: number; message: ChatMessage }) => {
-        // Update messages if viewing this session
         if (activeSession && data.sessionId === activeSession.id) {
           setMessages((prev) => {
             if (prev.some((m) => m.id === data.message.id)) return prev;
@@ -78,7 +74,6 @@ export function AdminChatPage() {
           });
         }
 
-        // Refresh sessions list
         getHotelSessions(Number(hotelId))
           .then(setSessions)
           .catch(console.error);
@@ -92,13 +87,11 @@ export function AdminChatPage() {
     };
   }, [hotelId, activeSession]);
 
-  // Also join the active session room for direct messages
   useEffect(() => {
     if (!socket || !activeSession) return;
     socket.emit("joinSession", { sessionId: activeSession.id });
   }, [socket, activeSession]);
 
-  // Listen for new messages on active session
   useEffect(() => {
     if (!socket) return;
 
@@ -115,7 +108,6 @@ export function AdminChatPage() {
     };
   }, [socket]);
 
-  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -136,7 +128,6 @@ export function AdminChatPage() {
     const messageText = inputMessage.trim();
     setInputMessage("");
 
-    // Optimistic update
     const optimisticMsg: ChatMessage = {
       id: Date.now(),
       session_id: activeSession.id,
@@ -150,7 +141,6 @@ export function AdminChatPage() {
     };
     setMessages((prev) => [...prev, optimisticMsg]);
 
-    // Send via WebSocket
     if (socket?.connected) {
       socket.emit("sendMessage", {
         sessionId: activeSession.id,
@@ -180,40 +170,40 @@ export function AdminChatPage() {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gray-50">
+      <div className="h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Loading dashboard...</p>
+          <p className="text-text-muted text-sm">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex bg-gray-50">
+    <div className="h-screen flex bg-background">
       {/* Sidebar - Sessions List */}
       <aside
         className={`${
           sidebarOpen ? "w-80" : "w-0"
-        } transition-all duration-300 bg-white border-r border-gray-200 flex flex-col overflow-hidden flex-shrink-0`}
+        } transition-all duration-300 bg-white border-r border-border flex flex-col overflow-hidden flex-shrink-0`}
       >
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-gray-100">
+        <div className="p-4 border-b border-border-light">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 shadow-sm">
               <svg
                 viewBox="0 0 24 24"
-                className="w-5 h-5 text-primary"
+                className="w-5 h-5 text-white"
                 fill="currentColor"
               >
                 <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
               </svg>
             </div>
             <div className="min-w-0">
-              <h1 className="font-bold text-gray-900 text-sm truncate">
+              <h1 className="font-bold text-text text-sm truncate">
                 {hotel?.name || "Hotel"}
               </h1>
-              <p className="text-xs text-gray-500">Chat Management</p>
+              <p className="text-xs text-text-muted">Chat Management</p>
             </div>
           </div>
         </div>
@@ -222,10 +212,10 @@ export function AdminChatPage() {
         <div className="flex-1 overflow-y-auto">
           {sessions.length === 0 ? (
             <div className="p-6 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-background flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"
-                  className="w-6 h-6 text-gray-400"
+                  className="w-6 h-6 text-text-light"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
@@ -237,13 +227,13 @@ export function AdminChatPage() {
                   />
                 </svg>
               </div>
-              <p className="text-sm text-gray-500">No conversations yet</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-sm text-text-muted">No conversations yet</p>
+              <p className="text-xs text-text-light mt-1">
                 Waiting for customers to start chatting
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-border-light">
               {sessions.map((session) => (
                 <SessionItem
                   key={session.id}
@@ -260,15 +250,15 @@ export function AdminChatPage() {
       {/* Main Chat Area */}
       <main className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center px-4 gap-3 flex-shrink-0">
+        <header className="h-16 bg-white border-b border-border flex items-center px-4 gap-3 flex-shrink-0 shadow-sm">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+            className="w-9 h-9 rounded-xl hover:bg-background flex items-center justify-center transition-colors duration-200 cursor-pointer"
             aria-label="Toggle sidebar"
           >
             <svg
               viewBox="0 0 24 24"
-              className="w-5 h-5 text-gray-600"
+              className="w-5 h-5 text-text-muted"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -279,31 +269,31 @@ export function AdminChatPage() {
 
           {activeSession ? (
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-sm">
                 {(activeSession.customer_name || "G")[0].toUpperCase()}
               </div>
               <div className="min-w-0">
-                <p className="font-semibold text-gray-900 text-sm truncate">
+                <p className="font-semibold text-text text-sm truncate">
                   {activeSession.customer_name || `Guest #${activeSession.id}`}
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-text-muted">
                     {LANGUAGE_LABELS[activeSession.customer_language] ||
                       activeSession.customer_language}
                   </span>
                   <span
-                    className={`inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full ${
+                    className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium ${
                       activeSession.status === "OPEN"
-                        ? "bg-green-50 text-green-700"
+                        ? "bg-emerald-50 text-emerald-700"
                         : activeSession.status === "ASSIGNED"
                           ? "bg-blue-50 text-blue-700"
-                          : "bg-gray-100 text-gray-600"
+                          : "bg-gray-100 text-text-muted"
                     }`}
                   >
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
                         activeSession.status === "OPEN"
-                          ? "bg-green-500"
+                          ? "bg-emerald-500"
                           : activeSession.status === "ASSIGNED"
                             ? "bg-blue-500"
                             : "bg-gray-400"
@@ -315,14 +305,14 @@ export function AdminChatPage() {
               </div>
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">Select a conversation</p>
+            <p className="text-text-muted text-sm">Select a conversation</p>
           )}
         </header>
 
         {/* Messages Area */}
         {activeSession ? (
           <>
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-background/50">
               {messages.map((msg) => (
                 <AdminMessageBubble key={msg.id} message={msg} />
               ))}
@@ -330,7 +320,7 @@ export function AdminChatPage() {
             </div>
 
             {/* Input */}
-            <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
+            <div className="bg-white border-t border-border p-4 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <input
                   type="text"
@@ -338,12 +328,12 @@ export function AdminChatPage() {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={handleKeyPress}
                   placeholder="Type your reply..."
-                  className="flex-1 px-4 py-3 rounded-xl bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-white border border-transparent focus:border-primary/20 transition-all"
+                  className="flex-1 px-4 py-3 rounded-xl bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white border border-transparent focus:border-primary/20 transition-all"
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim()}
-                  className="w-11 h-11 rounded-xl bg-primary text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-light transition-colors shadow-sm"
+                  className="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:shadow-premium transition-all duration-200 shadow-sm"
                   aria-label="Send message"
                 >
                   <svg
@@ -360,10 +350,10 @@ export function AdminChatPage() {
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white shadow-premium flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"
-                  className="w-10 h-10 text-gray-300"
+                  className="w-10 h-10 text-primary/20"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1"
@@ -376,10 +366,8 @@ export function AdminChatPage() {
                   <path d="M8 10h8M8 14h5" strokeLinecap="round" />
                 </svg>
               </div>
-              <p className="text-gray-500 font-medium">
-                No conversation selected
-              </p>
-              <p className="text-gray-400 text-sm mt-1">
+              <p className="text-text font-medium">No conversation selected</p>
+              <p className="text-text-muted text-sm mt-1">
                 Choose a conversation from the sidebar to start replying
               </p>
             </div>
@@ -405,32 +393,32 @@ function SessionItem({
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${
-        isActive ? "bg-primary/5 border-l-3 border-l-primary" : ""
+      className={`w-full text-left p-4 hover:bg-background transition-colors duration-200 cursor-pointer ${
+        isActive ? "bg-primary/[0.04] border-l-3 border-l-primary" : ""
       }`}
     >
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-sm">
           {(session.customer_name || "G")[0].toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-gray-900 text-sm truncate">
+            <p className="font-medium text-text text-sm truncate">
               {session.customer_name || `Guest #${session.id}`}
             </p>
-            <span className="text-[11px] text-gray-400 flex-shrink-0">
+            <span className="text-[11px] text-text-light flex-shrink-0">
               {timeAgo}
             </span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs text-gray-500 truncate">
+            <span className="text-xs text-text-muted truncate">
               {LANGUAGE_LABELS[session.customer_language] ||
                 session.customer_language}
             </span>
             <span
               className={`w-2 h-2 rounded-full flex-shrink-0 ${
                 session.status === "OPEN"
-                  ? "bg-green-400"
+                  ? "bg-emerald-400"
                   : session.status === "ASSIGNED"
                     ? "bg-blue-400"
                     : "bg-gray-300"
@@ -451,8 +439,8 @@ function AdminMessageBubble({ message }: { message: ChatMessage }) {
   if (isSystem) {
     return (
       <div className="flex justify-center">
-        <div className="bg-white rounded-full px-4 py-1.5 shadow-sm border border-gray-100">
-          <p className="text-xs text-gray-500 text-center">
+        <div className="bg-white rounded-full px-4 py-1.5 shadow-sm border border-border-light">
+          <p className="text-xs text-text-muted text-center">
             {message.original_message}
           </p>
         </div>
@@ -463,15 +451,15 @@ function AdminMessageBubble({ message }: { message: ChatMessage }) {
   return (
     <div className={`flex ${isStaff ? "justify-end" : "justify-start"}`}>
       {!isStaff && (
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-xs font-semibold mr-2 flex-shrink-0 mt-1">
+        <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center text-white text-xs font-semibold mr-2 flex-shrink-0 mt-1 shadow-sm">
           G
         </div>
       )}
       <div
-        className={`max-w-[65%] rounded-2xl px-4 py-3 shadow-sm ${
+        className={`max-w-[65%] rounded-2xl px-4 py-3 ${
           isStaff
-            ? "bg-primary text-white rounded-br-md"
-            : "bg-white text-gray-900 rounded-bl-md border border-gray-100"
+            ? "gradient-primary text-white rounded-br-lg shadow-sm"
+            : "bg-white text-text rounded-bl-lg shadow-sm border border-border-light"
         }`}
       >
         <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -479,7 +467,7 @@ function AdminMessageBubble({ message }: { message: ChatMessage }) {
         </p>
         <p
           className={`text-[10px] mt-1.5 ${
-            isStaff ? "text-white/60" : "text-gray-400"
+            isStaff ? "text-white/60" : "text-text-light"
           }`}
         >
           {new Date(message.created_at).toLocaleTimeString([], {
