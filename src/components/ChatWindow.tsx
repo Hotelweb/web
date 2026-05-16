@@ -1,25 +1,17 @@
-import { useState, useEffect, useRef } from 'react'
-import { io, Socket } from 'socket.io-client'
-import { createChatSession, getChatMessages } from '../api'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createChatSession, getChatMessages, getChatSessionByToken, markSessionRead } from '../api'
 import type { ChatMessage, ChatSession } from '../api'
-import { CloseIcon, SendIcon, SparkleIcon } from './icons/ServiceIcons'
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-
-interface Language {
-  code: string
-  name: string
-  nativeName: string
-  flag: string
-}
-
-const LANGUAGES: Language[] = [
-  { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧' },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
-  { code: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷' },
-]
+import { useChatSocket } from '../hooks/useChatSocket'
+import { getLanguage } from '../lib/languages'
+import { t } from '../lib/i18n'
+import { LanguagePicker } from './chat/LanguagePicker'
+import { BookingForm, type BookingFormValue } from './chat/BookingForm'
+import { MessageBubble, type DisplayMessage } from './chat/MessageBubble'
+import { TypingIndicator } from './chat/TypingIndicator'
+import { ConnectionBanner, ConnectionDot } from './chat/ConnectionBanner'
+import { QuickReplies } from './chat/QuickReplies'
+import { SkeletonList } from './chat/SkeletonMessage'
+import { CloseIcon, ImageIcon, SendIcon, SmileIcon, SparkleIcon } from './icons/ServiceIcons'
 
 interface ChatWindowProps {
   hotelId: number
@@ -27,347 +19,554 @@ interface ChatWindowProps {
   onClose: () => void
 }
 
+type Step = 'language' | 'form' | 'chat'
+
 export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
-  const [step, setStep] = useState<'language' | 'chat'>('language')
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
+  const [step, setStep] = useState<Step>('language')
+  const [language, setLanguage] = useState<string | null>(null)
   const [session, setSession] = useState<ChatSession | null>(null)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [inputMessage, setInputMessage] = useState('')
+  const [messages, setMessages] = useState<DisplayMessage[]>([])
   const [loading, setLoading] = useState(false)
-  const socketRef = useRef<Socket | null>(null)
+  const [loadingMessages, setLoadingMessages] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
+  const [input, setInput] = useState('')
+  const [staffTyping, setStaffTyping] = useState(false)
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const lang = language ?? 'en'
+
+  // -----------------------------------------------------------------------
+  // Try to resume an existing session for this hotel + language pair.
+  // -----------------------------------------------------------------------
   useEffect(() => {
-    if (!session) return
+    if (!language || step !== 'language') return
+    const storageKey = `chat_session_${hotelId}_${language}`
+    const token = localStorage.getItem(storageKey)
+    if (!token) return
 
-    const newSocket = io(`${API_BASE}/chat`, {
-      transports: ['websocket'],
-    })
-
-    newSocket.on('connect', () => {
-      newSocket.emit('joinSession', { sessionId: session.id })
-    })
-
-    newSocket.on('newMessage', (message: ChatMessage) => {
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === message.id)) return prev
-        return [...prev, message]
-      })
-    })
-
-    socketRef.current = newSocket
+    let cancelled = false
+    const resume = async () => {
+      setLoading(true)
+      try {
+        const s = await getChatSessionByToken(token)
+        if (cancelled) return
+        if (s.status === 'CLOSED') {
+          localStorage.removeItem(storageKey)
+          return
+        }
+        const msgs = await getChatMessages(s.id)
+        if (cancelled) return
+        setSession(s)
+        setMessages(msgs)
+        setStep('chat')
+      } catch {
+        localStorage.removeItem(storageKey)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    void resume()
 
     return () => {
-      newSocket.disconnect()
-      socketRef.current = null
+      cancelled = true
     }
-  }, [session])
+  }, [language, hotelId, step])
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  useEffect(() => {
-    if (step === 'chat') {
-      // Auto-focus input when entering chat
-      setTimeout(() => inputRef.current?.focus(), 200)
-    }
-  }, [step])
-
-  const handleLanguageSelect = async (langCode: string) => {
-    setSelectedLanguage(langCode)
-    setLoading(true)
-
-    try {
-      const storageKey = `chat_session_${hotelId}_${langCode}`
-      const existingToken = localStorage.getItem(storageKey)
-
-      let chatSession: ChatSession
-
-      if (existingToken) {
-        try {
-          const res = await fetch(`${API_BASE}/chat/sessions/token/${existingToken}`)
-          if (res.ok) {
-            chatSession = await res.json()
-            if (chatSession.status !== 'CLOSED') {
-              setSession(chatSession)
-              const msgs = await getChatMessages(chatSession.id)
-              setMessages(msgs)
-              setStep('chat')
-              setLoading(false)
-              return
-            }
-          }
-        } catch {
-          // Session expired or invalid
+  // -----------------------------------------------------------------------
+  // Realtime socket
+  // -----------------------------------------------------------------------
+  const handleNewMessage = useCallback((msg: ChatMessage) => {
+    setMessages((prev) => {
+      // Reconcile optimistic copy if client_message_id matches
+      if (msg.client_message_id) {
+        const idx = prev.findIndex(
+          (m) => m._optimistic && m.client_message_id === msg.client_message_id,
+        )
+        if (idx >= 0) {
+          const next = [...prev]
+          next[idx] = msg
+          return next
         }
       }
+      if (prev.some((m) => m.id === msg.id)) return prev
+      return [...prev, msg]
+    })
+  }, [])
 
-      chatSession = await createChatSession({
-        hotel_id: hotelId,
-        customer_language: langCode,
-      })
+  const handleTyping = useCallback(
+    (data: { sessionId: number; sender_type: 'CUSTOMER' | 'STAFF'; isTyping: boolean }) => {
+      if (data.sender_type === 'STAFF') setStaffTyping(data.isTyping)
+    },
+    [],
+  )
 
-      localStorage.setItem(storageKey, chatSession.customer_token)
-      setSession(chatSession)
+  const handleMessagesRead = useCallback(
+    (data: { sessionId: number; by: 'customer' | 'staff' }) => {
+      if (data.by !== 'staff') return
+      // Staff opened the conversation — mark our (CUSTOMER) outgoing messages as read
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.sender_type === 'CUSTOMER' && !m.is_read
+            ? { ...m, is_read: true, status: 'READ', read_at: new Date().toISOString() }
+            : m,
+        ),
+      )
+    },
+    [],
+  )
 
-      const msgs = await getChatMessages(chatSession.id)
-      setMessages(msgs)
-      setStep('chat')
-    } catch (err) {
-      console.error('Failed to create chat session:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const {
+    connection,
+    sendMessage: socketSend,
+    emitTyping,
+    markRead,
+  } = useChatSocket({
+    sessionId: session?.id ?? null,
+    role: 'customer',
+    onNewMessage: handleNewMessage,
+    onTyping: handleTyping,
+    onMessagesRead: handleMessagesRead,
+  })
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !session || !selectedLanguage) return
+  // Auto-scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, staffTyping])
 
-    const messageText = inputMessage.trim()
-    setInputMessage('')
+  // Mark staff messages as read when chat is open and online.
+  // Wrapped in async function so setState calls happen after a microtask
+  // (React 19 strict-mode rule).
+  useEffect(() => {
+    if (step !== 'chat' || connection !== 'online' || !session) return
+    const hasUnreadStaff = messages.some(
+      (m) => m.sender_type === 'STAFF' && !m.is_read && m.message_type !== 'SYSTEM',
+    )
+    if (!hasUnreadStaff) return
 
-    const optimisticMsg: ChatMessage = {
-      id: Date.now(),
-      session_id: session.id,
-      sender_type: 'CUSTOMER',
-      message_type: 'TEXT',
-      source_language: selectedLanguage,
-      original_message: messageText,
-      translated_message: null,
-      is_read: false,
-      created_at: new Date().toISOString(),
-    }
-    setMessages((prev) => [...prev, optimisticMsg])
-
-    if (socketRef.current?.connected) {
-      socketRef.current.emit('sendMessage', {
-        sessionId: session.id,
-        message: messageText,
-        source_language: selectedLanguage,
-        sender_type: 'CUSTOMER',
-      })
-    } else {
+    let cancelled = false
+    const run = async () => {
       try {
-        await fetch(`${API_BASE}/chat/sessions/${session.id}/messages/customer`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: messageText,
-            source_language: selectedLanguage,
-          }),
-        })
+        markRead()
+        await markSessionRead(session.id, 'customer').catch(() => undefined)
+        if (cancelled) return
+        setMessages((prev) =>
+          prev.map((m) => (m.sender_type === 'STAFF' && !m.is_read ? { ...m, is_read: true } : m)),
+        )
       } catch (err) {
-        console.error('Failed to send message:', err)
+        console.error('Failed to mark messages read:', err)
       }
     }
-  }
+    void run()
+    return () => {
+      cancelled = true
+    }
+  }, [step, connection, session, messages, markRead])
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+  // Auto-focus input on entering chat
+  useEffect(() => {
+    if (step === 'chat') setTimeout(() => inputRef.current?.focus(), 250)
+  }, [step])
+
+  // Typing emit (debounced)
+  const typingTimerRef = useRef<number | null>(null)
+  useEffect(() => {
+    if (step !== 'chat') return
+    if (input.trim().length === 0) {
+      emitTyping(false)
+      return
+    }
+    emitTyping(true)
+    if (typingTimerRef.current) window.clearTimeout(typingTimerRef.current)
+    typingTimerRef.current = window.setTimeout(() => emitTyping(false), 1500)
+    return () => {
+      if (typingTimerRef.current) window.clearTimeout(typingTimerRef.current)
+    }
+  }, [input, step, emitTyping])
+
+  // -----------------------------------------------------------------------
+  // Step transitions
+  // -----------------------------------------------------------------------
+  const handleLanguageContinue = () => {
+    if (!language) return
+    if (session) {
+      setStep('chat')
+    } else {
+      setStep('form')
     }
   }
+
+  const handleSubmitForm = async (formValue: BookingFormValue) => {
+    if (!language) return
+    setCreating(true)
+    setCreateError(null)
+    try {
+      const newSession = await createChatSession({
+        hotel_id: hotelId,
+        customer_language: language,
+        ...formValue,
+      })
+      localStorage.setItem(`chat_session_${hotelId}_${language}`, newSession.customer_token)
+      setSession(newSession)
+      setLoadingMessages(true)
+      const msgs = await getChatMessages(newSession.id)
+      setMessages(msgs)
+      setLoadingMessages(false)
+      setStep('chat')
+    } catch (err) {
+      console.error('Failed to create session:', err)
+      setCreateError((err as Error).message ?? 'Could not start the chat. Please try again.')
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  const handleSkipForm = async () => {
+    if (!language) return
+    setCreating(true)
+    setCreateError(null)
+    try {
+      const newSession = await createChatSession({
+        hotel_id: hotelId,
+        customer_language: language,
+      })
+      localStorage.setItem(`chat_session_${hotelId}_${language}`, newSession.customer_token)
+      setSession(newSession)
+      setLoadingMessages(true)
+      const msgs = await getChatMessages(newSession.id)
+      setMessages(msgs)
+      setLoadingMessages(false)
+      setStep('chat')
+    } catch (err) {
+      setCreateError((err as Error).message ?? 'Could not start the chat. Please try again.')
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Sending
+  // -----------------------------------------------------------------------
+  const performSend = useCallback(
+    (text: string, opts?: { messageType?: 'TEXT' | 'IMAGE'; imageUrl?: string }) => {
+      if (!session || !language) return
+      const trimmed = text.trim()
+      if (!trimmed && !opts?.imageUrl) return
+
+      const clientId = `c_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+      const optimistic: DisplayMessage = {
+        id: -Date.now(),
+        session_id: session.id,
+        sender_type: 'CUSTOMER',
+        message_type: opts?.messageType ?? 'TEXT',
+        source_language: language,
+        target_language: 'vi',
+        original_message: trimmed || null,
+        translated_message: null,
+        translation_status: 'PENDING',
+        translation_provider: null,
+        translation_duration_ms: null,
+        image_url: opts?.imageUrl ?? null,
+        status: 'SENDING',
+        client_message_id: clientId,
+        is_read: false,
+        read_at: null,
+        created_at: new Date().toISOString(),
+        _optimistic: true,
+      }
+      setMessages((prev) => [...prev, optimistic])
+
+      socketSend({
+        sessionId: session.id,
+        message: trimmed,
+        source_language: language,
+        sender_type: 'CUSTOMER',
+        client_message_id: clientId,
+        message_type: opts?.messageType,
+        image_url: opts?.imageUrl,
+      })
+
+      // Connection-down safety net: mark as failed after 8s
+      window.setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.client_message_id === clientId && m._optimistic
+              ? { ...m, _failed: true, _optimistic: false, status: 'FAILED' }
+              : m,
+          ),
+        )
+      }, 8000)
+    },
+    [session, language, socketSend],
+  )
+
+  const handleSend = () => {
+    performSend(input)
+    setInput('')
+    emitTyping(false)
+  }
+
+  const handleQuickReply = (label: string) => {
+    performSend(label)
+  }
+
+  const handleAttachClick = () => fileInputRef.current?.click()
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // For demo: read as data URL. Production would upload to S3/R2 first.
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      performSend('', { messageType: 'IMAGE', imageUrl: dataUrl })
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
+  const handleRetry = (msg: DisplayMessage) => {
+    setMessages((prev) => prev.filter((m) => m.client_message_id !== msg.client_message_id))
+    performSend(msg.original_message ?? '', {
+      messageType: msg.message_type === 'IMAGE' ? 'IMAGE' : 'TEXT',
+      imageUrl: msg.image_url ?? undefined,
+    })
+  }
+
+  const handleClose = () => {
+    emitTyping(false)
+    onClose()
+  }
+
+  // -----------------------------------------------------------------------
+  // Quick replies (localized)
+  // -----------------------------------------------------------------------
+  const quickReplies = useMemo(
+    () => [
+      { key: 'book', label: t(lang, 'qr.want_to_book'), icon: '🛏️' },
+      { key: 'rooms', label: t(lang, 'qr.available_rooms'), icon: '🏨' },
+      { key: 'late', label: t(lang, 'qr.late_checkin'), icon: '🌙' },
+      { key: 'airport', label: t(lang, 'qr.airport_pickup'), icon: '✈️' },
+      { key: 'breakfast', label: t(lang, 'qr.breakfast'), icon: '🥐' },
+      { key: 'cancel', label: t(lang, 'qr.cancel_policy'), icon: '📋' },
+    ],
+    [lang],
+  )
+
+  const showQuickReplies =
+    step === 'chat' &&
+    !staffTyping &&
+    messages.filter((m) => m.message_type !== 'SYSTEM' && m.sender_type === 'CUSTOMER').length === 0
+
+  // -----------------------------------------------------------------------
+  // Render
+  // -----------------------------------------------------------------------
+  const headerLang = language ? getLanguage(language) : null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-end sm:justify-end">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/30 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-0"
-        onClick={onClose}
+        onClick={handleClose}
+        aria-label="Close"
       />
 
-      {/* Chat Container - full screen on mobile, popup on desktop (bottom-right) */}
-      <div className="relative w-full h-full sm:w-[400px] sm:h-[600px] sm:max-h-[calc(100vh-3rem)] sm:mr-6 sm:mb-6 bg-white sm:rounded-3xl overflow-hidden flex flex-col animate-slide-up shadow-modal sm:border sm:border-border-light">
-        {/* Header - green gradient */}
-        <header className="gradient-primary text-white px-5 py-4 flex items-center justify-between flex-shrink-0">
+      <div
+        className="relative w-full h-full sm:w-[420px] sm:h-[680px] sm:max-h-[calc(100vh-3rem)] sm:mr-6 sm:mb-6 bg-white sm:rounded-3xl overflow-hidden flex flex-col animate-slide-up shadow-modal sm:border sm:border-border-light"
+        role="dialog"
+        aria-label="Hotel chat"
+      >
+        {/* Header */}
+        <header className="gradient-primary text-white px-5 py-3.5 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center flex-shrink-0 ring-1 ring-white/20">
               <SparkleIcon className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-[15px] leading-tight truncate">{hotelName}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse-soft" />
-                <p className="text-xs text-white/85">
-                  {step === 'language' ? 'Chọn ngôn ngữ' : 'Đang hoạt động'}
-                </p>
-              </div>
+              <p className="font-semibold text-[15px] leading-tight truncate">
+                {step === 'language' ? t('en', 'chat.title') : t(lang, 'chat.title')}
+              </p>
+              <p className="text-[11.5px] text-white/80 mt-0.5 truncate flex items-center gap-1.5">
+                {step === 'chat' ? (
+                  <>
+                    <ConnectionDot state={connection} />
+                    <span>
+                      {connection === 'online'
+                        ? t(lang, 'chat.online')
+                        : connection === 'reconnecting' || connection === 'connecting'
+                          ? t(lang, 'chat.reconnecting')
+                          : t(lang, 'chat.offline')}
+                    </span>
+                    {headerLang ? (
+                      <>
+                        <span className="text-white/40">·</span>
+                        <span aria-hidden>{headerLang.flag}</span>
+                        <span>{headerLang.nativeName}</span>
+                      </>
+                    ) : null}
+                  </>
+                ) : (
+                  hotelName
+                )}
+              </p>
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors duration-200 cursor-pointer flex-shrink-0"
-            aria-label="Close chat"
+            aria-label={t(lang, 'common.close')}
           >
             <CloseIcon />
           </button>
         </header>
 
-        {/* Content */}
-        {step === 'language' ? (
-          <LanguageSelector
-            languages={LANGUAGES}
-            onSelect={handleLanguageSelect}
-            loading={loading}
+        {/* Connection banner */}
+        {step === 'chat' ? (
+          <ConnectionBanner
+            state={connection}
+            labels={{
+              offline: t(lang, 'chat.offline'),
+              reconnecting: t(lang, 'chat.reconnecting'),
+            }}
           />
-        ) : (
-          <ChatMessages
-            messages={messages}
-            inputMessage={inputMessage}
-            onInputChange={setInputMessage}
-            onSend={handleSendMessage}
-            onKeyPress={handleKeyPress}
-            inputRef={inputRef}
-            messagesEndRef={messagesEndRef}
-          />
-        )}
-      </div>
-    </div>
-  )
-}
-
-function LanguageSelector({
-  languages,
-  onSelect,
-  loading,
-}: {
-  languages: Language[]
-  onSelect: (code: string) => void
-  loading: boolean
-}) {
-  return (
-    <div className="flex-1 flex flex-col p-10 overflow-y-auto bg-gray-50">
-      <div className="text-center mb-5">
-        <h3 className="text-lg font-bold text-text">Chọn ngôn ngữ của bạn</h3>
-        <p className="text-sm text-text-light mt-1">Chọn ngôn ngữ để bắt đầu trò chuyện</p>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        {languages.map((lang) => (
-          <button
-            key={lang.code}
-            onClick={() => onSelect(lang.code)}
-            disabled={loading}
-            className="flex items-center gap-3 p-3 rounded-2xl bg-white border border-border-light hover:border-primary/40 hover:shadow-card-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-left"
-          >
-            <span className="text-2xl">{lang.flag}</span>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-text text-[14px]">{lang.nativeName}</p>
-              <p className="text-xs text-text-light mt-0.5">{lang.name}</p>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-5 gap-3">
-          <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-text-muted">Đang kết nối...</span>
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
-function ChatMessages({
-  messages,
-  inputMessage,
-  onInputChange,
-  onSend,
-  onKeyPress,
-  inputRef,
-  messagesEndRef,
-}: {
-  messages: ChatMessage[]
-  inputMessage: string
-  onInputChange: (value: string) => void
-  onSend: () => void
-  onKeyPress: (e: React.KeyboardEvent) => void
-  inputRef: React.RefObject<HTMLInputElement | null>
-  messagesEndRef: React.RefObject<HTMLDivElement | null>
-}) {
-  return (
-    <>
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center py-8">
-            <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-soft border border-border-light max-w-[80%] text-left">
-              <p className="text-sm text-text leading-relaxed">
-                Xin chào! Tôi là trợ lý ảo của khách sạn. Tôi có thể giúp gì cho quý khách?
-              </p>
-            </div>
-          </div>
         ) : null}
-        {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
 
-      {/* Input Area */}
-      <div className="flex-shrink-0 border-t border-border-light p-3 bg-white">
-        <div className="flex items-center gap-2">
-          <div className="flex-1 relative">
-            <input
-              ref={inputRef}
-              type="text"
-              value={inputMessage}
-              onChange={(e) => onInputChange(e.target.value)}
-              onKeyDown={onKeyPress}
-              placeholder="Nhập tin nhắn..."
-              className="w-full px-4 py-2.5 rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:bg-white border border-transparent focus:border-primary/30 transition-all placeholder:text-text-lighter"
+        {/* Body */}
+        {step === 'language' ? (
+          <>
+            <LanguagePicker
+              selected={language}
+              onSelect={setLanguage}
+              onContinue={handleLanguageContinue}
+              hotelName={hotelName}
             />
-          </div>
-          <button
-            onClick={onSend}
-            disabled={!inputMessage.trim()}
-            className="w-10 h-10 rounded-full gradient-primary text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:shadow-card transition-all duration-200 flex-shrink-0 active:scale-95"
-            aria-label="Send message"
-          >
-            <SendIcon className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </>
-  )
-}
+            {loading ? (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center">
+                <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : null}
+          </>
+        ) : step === 'form' ? (
+          <>
+            <BookingForm
+              language={lang}
+              loading={creating}
+              onSubmit={handleSubmitForm}
+              onSkip={handleSkipForm}
+              onBack={() => setStep('language')}
+            />
+            {createError ? (
+              <div className="px-5 pb-3 -mt-2">
+                <div className="text-[12px] text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+                  {createError}
+                </div>
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <>
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50/60">
+              {loadingMessages ? <SkeletonList /> : null}
+              {messages.map((msg) => (
+                <MessageBubble
+                  key={`${msg.id}_${msg.client_message_id ?? ''}`}
+                  message={msg}
+                  viewer="customer"
+                  labels={{
+                    sending: t(lang, 'status.sending'),
+                    sent: t(lang, 'status.sent'),
+                    delivered: t(lang, 'status.delivered'),
+                    read: t(lang, 'status.read'),
+                    failed: t(lang, 'status.failed'),
+                    retry: t(lang, 'chat.retry'),
+                    showOriginal: t(lang, 'chat.show_original'),
+                    hideOriginal: t(lang, 'chat.hide_original'),
+                    translating: t(lang, 'chat.translating'),
+                    translationFailed: t(lang, 'chat.translation_failed'),
+                    translatedBadge: t(lang, 'badge.translated'),
+                    you: t(lang, 'common.you'),
+                    staff: t(lang, 'common.staff'),
+                  }}
+                  onRetry={handleRetry}
+                />
+              ))}
 
-function MessageBubble({ message }: { message: ChatMessage }) {
-  const isCustomer = message.sender_type === 'CUSTOMER'
-  const isSystem = message.message_type === 'SYSTEM'
+              {staffTyping ? (
+                <TypingIndicator
+                  label={t(lang, 'common.staff') + ' ' + t(lang, 'typing.indicator')}
+                  variant="guest"
+                />
+              ) : null}
 
-  if (isSystem) {
-    return (
-      <div className="flex justify-center my-2">
-        <div className="bg-white rounded-full px-3 py-1 max-w-[85%] shadow-soft border border-border-light">
-          <p className="text-[11px] text-text-muted text-center">{message.original_message}</p>
-        </div>
-      </div>
-    )
-  }
+              <div ref={messagesEndRef} />
+            </div>
 
-  return (
-    <div className={`flex ${isCustomer ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-      <div
-        className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 ${
-          isCustomer
-            ? 'gradient-primary text-white rounded-br-md shadow-soft'
-            : 'bg-white text-text rounded-bl-md shadow-soft border border-border-light'
-        }`}
-      >
-        <p className="text-[14px] leading-relaxed whitespace-pre-wrap">
-          {message.original_message}
-        </p>
-        <p className={`text-[10px] mt-1 ${isCustomer ? 'text-white/60' : 'text-text-lighter'}`}>
-          {new Date(message.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </p>
+            {/* Quick replies */}
+            {showQuickReplies ? (
+              <div className="px-3 pb-2 pt-1">
+                <QuickReplies replies={quickReplies} onSelect={handleQuickReply} variant="guest" />
+              </div>
+            ) : null}
+
+            {/* Composer */}
+            <div className="flex-shrink-0 border-t border-border-light bg-white px-3 py-2.5">
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <div className="flex items-end gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleAttachClick}
+                  className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-text-muted cursor-pointer flex-shrink-0 transition-colors duration-200"
+                  aria-label={t(lang, 'chat.attach_image')}
+                >
+                  <ImageIcon className="w-5 h-5" />
+                </button>
+                <div className="flex-1 relative">
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSend()
+                      }
+                    }}
+                    rows={1}
+                    placeholder={t(lang, 'chat.input_placeholder')}
+                    className="w-full max-h-[120px] resize-none px-4 py-2.5 rounded-2xl bg-gray-100 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white border border-transparent focus:border-primary/30 transition-all placeholder:text-text-lighter pr-9"
+                    style={{ minHeight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 bottom-1.5 w-7 h-7 rounded-full hover:bg-gray-200 flex items-center justify-center text-text-muted cursor-pointer"
+                    aria-label="Add emoji"
+                  >
+                    <SmileIcon className="w-4 h-4" />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={!input.trim()}
+                  className="w-10 h-10 rounded-full gradient-primary text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:shadow-card-hover transition-all duration-200 flex-shrink-0 active:scale-95"
+                  aria-label={t(lang, 'chat.send')}
+                >
+                  <SendIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

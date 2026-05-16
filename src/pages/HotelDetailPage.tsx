@@ -136,7 +136,7 @@ export function HotelDetailPage() {
       </main>
 
       {/* Floating chat button */}
-      <ChatButton onClick={() => setShowChat(true)} />
+      <ChatButton onClick={() => setShowChat(true)} badge={null} />
 
       {/* Chat Window */}
       {showChat ? (

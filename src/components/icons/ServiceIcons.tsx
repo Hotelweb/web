@@ -332,3 +332,143 @@ export const SparkleIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
     <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
   </svg>
 )
+
+// ----- Chat-specific extras --------------------------------------------------
+
+export const CheckIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
+)
+
+export const CheckDoubleIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m2 12 5 5L18 6" />
+    <path d="m11 17 6.5-6.5" />
+    <path d="M16 12.5 22 6" />
+  </svg>
+)
+
+export const ClockIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 6v6l4 2" />
+  </svg>
+)
+
+export const AlertIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z" />
+    <path d="M12 9v4" />
+    <path d="M12 17h.01" />
+  </svg>
+)
+
+export const SignalIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M2 20h.01" />
+    <path d="M7 20v-4" />
+    <path d="M12 20v-8" />
+    <path d="M17 20V8" />
+    <path d="M22 4v16" />
+  </svg>
+)
+
+export const SignalOffIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m2 2 20 20" />
+    <path d="M5 12.55a11 11 0 0 1 5.17-2.39" />
+    <path d="M1.42 9a16 16 0 0 1 4.7-2.88" />
+    <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+    <path d="M12 20h.01" />
+  </svg>
+)
+
+export const TemplateIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <rect width="18" height="7" x="3" y="3" rx="1" />
+    <rect width="9" height="7" x="3" y="14" rx="1" />
+    <rect width="5" height="7" x="16" y="14" rx="1" />
+  </svg>
+)
+
+export const FilterIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+  </svg>
+)
+
+export const BellIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+  </svg>
+)
+
+export const BellOffIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5" />
+    <path d="M17 17H3s3-2 3-9a4.7 4.7 0 0 1 .3-1.7" />
+    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    <path d="m2 2 20 20" />
+  </svg>
+)
+
+export const TranslateBubbleIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M5 8h6" />
+    <path d="M8 5v3" />
+    <path d="M5 11s1 5 6 5 6-5 6-5" />
+    <path d="m13 18 4 4 4-4" />
+    <path d="M21 22v-9" />
+  </svg>
+)
+
+export const RefreshIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+    <path d="M21 3v5h-5" />
+    <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+    <path d="M3 21v-5h5" />
+  </svg>
+)
+
+export const UserCircleIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="10" r="3" />
+    <path d="M7 20.7a8 8 0 0 1 10 0" />
+  </svg>
+)
+
+export const CalendarIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <rect width="18" height="18" x="3" y="4" rx="2" />
+    <path d="M16 2v4" />
+    <path d="M8 2v4" />
+    <path d="M3 10h18" />
+  </svg>
+)
+
+export const TagIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M12.59 13.41 20 6 14 6V0L12.59 13.41z" />
+    <path d="M2 14a8 8 0 0 0 8 8l1.41-1.41a1 1 0 0 0 .29-.71V14H2z" />
+  </svg>
+)
+
+export const VolumeIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+  </svg>
+)
+
+export const VolumeOffIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <line x1="22" x2="16" y1="9" y2="15" />
+    <line x1="16" x2="22" y1="9" y2="15" />
+  </svg>
+)

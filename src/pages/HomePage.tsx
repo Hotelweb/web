@@ -6,6 +6,7 @@ import { HeroBanner } from '../components/HeroBanner'
 import { HotelCard } from '../components/HotelCard'
 import { ServicesGrid } from '../components/ServicesGrid'
 import { ChatButton } from '../components/ChatButton'
+import { ChatWindow } from '../components/ChatWindow'
 import { TopHeader } from '../components/TopHeader'
 
 export function HomePage() {
@@ -13,6 +14,7 @@ export function HomePage() {
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [, setLoading] = useState(true)
   const [lang, setLang] = useState<'VN' | 'EN'>('VN')
+  const [chatOpen, setChatOpen] = useState(false)
 
   useEffect(() => {
     async function loadHotels() {
@@ -35,6 +37,9 @@ export function HomePage() {
   const handleServiceClick = (service: string) => {
     console.log(`Service clicked: ${service}`)
   }
+
+  // Pick a hotel to open the chat with — first hotel by default
+  const featuredHotel = hotels[0] ?? null
 
   return (
     <div className="min-h-screen bg-background-warm">
@@ -81,7 +86,16 @@ export function HomePage() {
       </main>
 
       {/* Floating chat button */}
-      <ChatButton onClick={() => {}} />
+      <ChatButton onClick={() => featuredHotel && setChatOpen(true)} badge={null} />
+
+      {/* Chat Window */}
+      {chatOpen && featuredHotel ? (
+        <ChatWindow
+          hotelId={featuredHotel.id}
+          hotelName={featuredHotel.name}
+          onClose={() => setChatOpen(false)}
+        />
+      ) : null}
     </div>
   )
 }
