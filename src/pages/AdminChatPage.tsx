@@ -3,6 +3,17 @@ import { useParams } from 'react-router-dom'
 import { io, Socket } from 'socket.io-client'
 import { getHotel, getHotelSessions, getChatMessages, sendStaffMessage } from '../api'
 import type { Hotel, ChatSession, ChatMessage } from '../api'
+import {
+  SearchIcon,
+  PlusIcon,
+  PhoneIcon,
+  VideoIcon,
+  MoreIcon,
+  PaperclipIcon,
+  ImageIcon,
+  SmileIcon,
+  SendIcon,
+} from '../components/icons/ServiceIcons'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -21,10 +32,10 @@ export function AdminChatPage() {
   const [activeSession, setActiveSession] = useState<ChatSession | null>(null)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [inputMessage, setInputMessage] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
-  const [socket, setSocket] = useState<Socket | null>(null)
+  const socketRef = useRef<Socket | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const staffUserId = 1
 
@@ -66,23 +77,23 @@ export function AdminChatPage() {
           return [...prev, data.message]
         })
       }
-
       getHotelSessions(Number(hotelId)).then(setSessions).catch(console.error)
     })
 
-    setSocket(newSocket)
-
+    socketRef.current = newSocket
     return () => {
       newSocket.disconnect()
+      socketRef.current = null
     }
   }, [hotelId, activeSession])
 
   useEffect(() => {
-    if (!socket || !activeSession) return
-    socket.emit('joinSession', { sessionId: activeSession.id })
-  }, [socket, activeSession])
+    if (!socketRef.current || !activeSession) return
+    socketRef.current.emit('joinSession', { sessionId: activeSession.id })
+  }, [activeSession])
 
   useEffect(() => {
+    const socket = socketRef.current
     if (!socket) return
 
     const handler = (message: ChatMessage) => {
@@ -96,7 +107,7 @@ export function AdminChatPage() {
     return () => {
       socket.off('newMessage', handler)
     }
-  }, [socket])
+  }, [activeSession])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -131,8 +142,8 @@ export function AdminChatPage() {
     }
     setMessages((prev) => [...prev, optimisticMsg])
 
-    if (socket?.connected) {
-      socket.emit('sendMessage', {
+    if (socketRef.current?.connected) {
+      socketRef.current.emit('sendMessage', {
         sessionId: activeSession.id,
         message: messageText,
         source_language: 'vi',
@@ -158,9 +169,15 @@ export function AdminChatPage() {
     }
   }
 
+  // Filter sessions by search
+  const filteredSessions = sessions.filter((s) => {
+    const name = (s.customer_name || `Guest #${s.id}`).toLowerCase()
+    return name.includes(searchQuery.toLowerCase())
+  })
+
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
+      <div className="h-screen flex items-center justify-center bg-background-warm">
         <div className="text-center">
           <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-text-muted text-sm">Loading dashboard...</p>
@@ -170,55 +187,70 @@ export function AdminChatPage() {
   }
 
   return (
-    <div className="h-screen flex bg-background">
-      {/* Sidebar - Sessions List */}
-      <aside
-        className={`${
-          sidebarOpen ? 'w-80' : 'w-0'
-        } transition-all duration-300 bg-white border-r border-border flex flex-col overflow-hidden flex-shrink-0`}
-      >
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-border-light">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 shadow-sm">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
-              </svg>
-            </div>
+    <div className="h-screen flex bg-background-warm overflow-hidden">
+      {/* Sidebar - Conversations List */}
+      <aside className="w-[320px] bg-white border-r border-border flex flex-col flex-shrink-0">
+        {/* Header with title + new chat */}
+        <div className="px-4 pt-4 pb-3 border-b border-border-light flex flex-col gap-4">
+          <div className="flex items-center justify-between">
             <div className="min-w-0">
-              <h1 className="font-bold text-text text-sm truncate">{hotel?.name || 'Hotel'}</h1>
-              <p className="text-xs text-text-muted">Chat Management</p>
+              <h1 className="text-xl font-bold text-text">Messages</h1>
+              {hotel ? (
+                <p className="text-xs text-text-light truncate mt-0.5">{hotel.name}</p>
+              ) : null}
             </div>
+            <button
+              className="w-10 h-10 rounded-xl gradient-indigo text-white flex items-center justify-center hover:shadow-card transition-all duration-200 cursor-pointer flex-shrink-0"
+              aria-label="New conversation"
+            >
+              <PlusIcon className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-lighter pointer-events-none">
+              <SearchIcon className="w-4 h-4" />
+            </span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search conversations..."
+              className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:bg-white border border-transparent focus:border-indigo-300 transition-all placeholder:text-text-lighter"
+            />
           </div>
         </div>
 
-        {/* Sessions List */}
+        {/* Sessions list */}
         <div className="flex-1 overflow-y-auto">
-          {sessions.length === 0 ? (
+          {filteredSessions.length === 0 ? (
             <div className="p-6 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-background flex items-center justify-center">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gray-50 flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"
-                  className="w-6 h-6 text-text-light"
+                  className="w-6 h-6 text-text-lighter"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.5"
                 >
                   <path
-                    d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"
+                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                 </svg>
               </div>
-              <p className="text-sm text-text-muted">No conversations yet</p>
-              <p className="text-xs text-text-light mt-1">
-                Waiting for customers to start chatting
+              <p className="text-sm text-text-muted">
+                {searchQuery ? 'No conversations match' : 'No conversations yet'}
+              </p>
+              <p className="text-xs text-text-lighter mt-1">
+                {searchQuery ? 'Try a different search' : 'Waiting for customers'}
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-border-light">
-              {sessions.map((session) => (
+            <div className="p-2 flex flex-col gap-1">
+              {filteredSessions.map((session) => (
                 <SessionItem
                   key={session.id}
                   session={session}
@@ -232,122 +264,136 @@ export function AdminChatPage() {
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col min-w-0">
-        {/* Top Bar */}
-        <header className="h-16 bg-white border-b border-border flex items-center px-4 gap-3 flex-shrink-0 shadow-sm">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-9 h-9 rounded-xl hover:bg-background flex items-center justify-center transition-colors duration-200 cursor-pointer"
-            aria-label="Toggle sidebar"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="w-5 h-5 text-text-muted"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M3 12h18M3 6h18M3 18h18" strokeLinecap="round" />
-            </svg>
-          </button>
-
-          {activeSession ? (
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-sm">
-                {(activeSession.customer_name || 'G')[0].toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-text text-sm truncate">
-                  {activeSession.customer_name || `Guest #${activeSession.id}`}
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-text-muted">
-                    {LANGUAGE_LABELS[activeSession.customer_language] ||
-                      activeSession.customer_language}
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium ${
-                      activeSession.status === 'OPEN'
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : activeSession.status === 'ASSIGNED'
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'bg-gray-100 text-text-muted'
-                    }`}
-                  >
+      <main className="flex-1 flex flex-col min-w-0 bg-white">
+        {activeSession ? (
+          <>
+            {/* Top bar */}
+            <header className="px-6 py-3 border-b border-border-light flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <Avatar name={activeSession.customer_name || `Guest ${activeSession.id}`} />
+                <div className="min-w-0">
+                  <p className="font-semibold text-text text-[15px] truncate">
+                    {activeSession.customer_name || `Guest #${activeSession.id}`}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
                         activeSession.status === 'OPEN'
                           ? 'bg-emerald-500'
                           : activeSession.status === 'ASSIGNED'
                             ? 'bg-blue-500'
-                            : 'bg-gray-400'
+                            : 'bg-gray-300'
                       }`}
                     />
-                    {activeSession.status}
-                  </span>
+                    <span className="text-xs text-emerald-600 font-medium">
+                      {activeSession.status === 'OPEN' ? 'Active now' : activeSession.status}
+                    </span>
+                    <span className="text-text-lighter text-xs">·</span>
+                    <span className="text-xs text-text-light">
+                      {LANGUAGE_LABELS[activeSession.customer_language] ||
+                        activeSession.customer_language}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <p className="text-text-muted text-sm">Select a conversation</p>
-          )}
-        </header>
+              <div className="flex items-center gap-1 text-text-muted">
+                <button
+                  className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors duration-200 cursor-pointer"
+                  aria-label="Voice call"
+                >
+                  <PhoneIcon className="w-5 h-5" />
+                </button>
+                <button
+                  className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors duration-200 cursor-pointer"
+                  aria-label="Video call"
+                >
+                  <VideoIcon className="w-5 h-5" />
+                </button>
+                <button
+                  className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors duration-200 cursor-pointer"
+                  aria-label="More options"
+                >
+                  <MoreIcon className="w-5 h-5" />
+                </button>
+              </div>
+            </header>
 
-        {/* Messages Area */}
-        {activeSession ? (
-          <>
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-background/50">
-              {messages.map((msg) => (
-                <AdminMessageBubble key={msg.id} message={msg} />
+            {/* Messages area */}
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3 bg-white">
+              <DateDivider label="Today" />
+              {messages.map((msg, idx) => (
+                <AdminMessageBubble
+                  key={msg.id}
+                  message={msg}
+                  customerName={activeSession.customer_name || `Guest ${activeSession.id}`}
+                  showAvatar={shouldShowAvatar(messages, idx)}
+                />
               ))}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
-            <div className="bg-white border-t border-border p-4 flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Type your reply..."
-                  className="flex-1 px-4 py-3 rounded-xl bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white border border-transparent focus:border-primary/20 transition-all"
-                />
+            {/* Composer */}
+            <div className="px-6 py-3 border-t border-border-light bg-white flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <button
+                  className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors duration-200 text-text-muted cursor-pointer flex-shrink-0"
+                  aria-label="Attach file"
+                >
+                  <PaperclipIcon className="w-5 h-5" />
+                </button>
+                <button
+                  className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors duration-200 text-text-muted cursor-pointer flex-shrink-0"
+                  aria-label="Attach image"
+                >
+                  <ImageIcon className="w-5 h-5" />
+                </button>
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    placeholder="Type a message..."
+                    className="w-full pl-4 pr-10 py-2.5 rounded-2xl bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:bg-white border border-transparent focus:border-indigo-300 transition-all placeholder:text-text-lighter"
+                  />
+                  <button
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full hover:bg-gray-200 flex items-center justify-center text-text-muted cursor-pointer"
+                    aria-label="Add emoji"
+                  >
+                    <SmileIcon className="w-4 h-4" />
+                  </button>
+                </div>
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim()}
-                  className="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:shadow-premium transition-all duration-200 shadow-sm"
+                  className="w-11 h-11 rounded-xl gradient-indigo text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:shadow-card transition-all duration-200 flex-shrink-0 active:scale-95"
                   aria-label="Send message"
                 >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                  </svg>
+                  <SendIcon className="w-5 h-5" />
                 </button>
               </div>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white shadow-premium flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center bg-gray-50/50">
+            <div className="text-center px-6">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-2xl gradient-indigo flex items-center justify-center shadow-elevated">
                 <svg
                   viewBox="0 0 24 24"
-                  className="w-10 h-10 text-primary/20"
+                  className="w-10 h-10 text-white"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="1"
+                  strokeWidth="1.5"
                 >
                   <path
-                    d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"
+                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
-                  <path d="M8 10h8M8 14h5" strokeLinecap="round" />
                 </svg>
               </div>
-              <p className="text-text font-medium">No conversation selected</p>
-              <p className="text-text-muted text-sm mt-1">
+              <p className="text-text font-semibold text-lg">Select a conversation</p>
+              <p className="text-text-light text-sm mt-1">
                 Choose a conversation from the sidebar to start replying
               </p>
             </div>
@@ -358,7 +404,52 @@ export function AdminChatPage() {
   )
 }
 
-// Session Item Component
+// Whether to show avatar (only on first message in a sequence from same sender)
+function shouldShowAvatar(messages: ChatMessage[], idx: number): boolean {
+  const current = messages[idx]
+  if (current.message_type === 'SYSTEM') return false
+  const prev = messages[idx - 1]
+  if (!prev) return true
+  if (prev.message_type === 'SYSTEM') return true
+  return prev.sender_type !== current.sender_type
+}
+
+// Avatar with initials and colored background
+function Avatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' }) {
+  const initial = (name || 'G')[0].toUpperCase()
+  const sz = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm'
+  // Pick a color from the palette deterministically
+  const colors = [
+    'bg-indigo-500',
+    'bg-pink-500',
+    'bg-amber-500',
+    'bg-emerald-500',
+    'bg-blue-500',
+    'bg-rose-500',
+    'bg-violet-500',
+  ]
+  const colorIdx = (name?.charCodeAt(0) || 0) % colors.length
+  return (
+    <div
+      className={`${sz} ${colors[colorIdx]} rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0`}
+      aria-hidden="true"
+    >
+      {initial}
+    </div>
+  )
+}
+
+function DateDivider({ label }: { label: string }) {
+  return (
+    <div className="flex justify-center py-2">
+      <span className="bg-gray-100 text-text-light text-xs font-medium px-3 py-1 rounded-full">
+        {label}
+      </span>
+    </div>
+  )
+}
+
+// Session item in sidebar
 function SessionItem({
   session,
   isActive,
@@ -369,33 +460,30 @@ function SessionItem({
   onClick: () => void
 }) {
   const timeAgo = getTimeAgo(session.created_at)
+  const name = session.customer_name || `Guest #${session.id}`
 
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left p-4 hover:bg-background transition-colors duration-200 cursor-pointer ${
-        isActive ? 'bg-primary/[0.04] border-l-3 border-l-primary' : ''
+      className={`w-full text-left p-3 rounded-xl transition-colors duration-200 cursor-pointer ${
+        isActive ? 'bg-indigo-50 ring-1 ring-indigo-200' : 'hover:bg-gray-50'
       }`}
     >
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-sm">
-          {(session.customer_name || 'G')[0].toUpperCase()}
-        </div>
+        <Avatar name={name} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-medium text-text text-sm truncate">
-              {session.customer_name || `Guest #${session.id}`}
-            </p>
-            <span className="text-[11px] text-text-light flex-shrink-0">{timeAgo}</span>
+            <p className="font-semibold text-text text-sm truncate">{name}</p>
+            <span className="text-[11px] text-text-lighter flex-shrink-0">{timeAgo}</span>
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs text-text-muted truncate">
+          <div className="flex items-center justify-between gap-2 mt-0.5">
+            <p className="text-xs text-text-light truncate">
               {LANGUAGE_LABELS[session.customer_language] || session.customer_language}
-            </span>
+            </p>
             <span
               className={`w-2 h-2 rounded-full flex-shrink-0 ${
                 session.status === 'OPEN'
-                  ? 'bg-emerald-400'
+                  ? 'bg-indigo-500'
                   : session.status === 'ASSIGNED'
                     ? 'bg-blue-400'
                     : 'bg-gray-300'
@@ -408,37 +496,51 @@ function SessionItem({
   )
 }
 
-// Admin Message Bubble
-function AdminMessageBubble({ message }: { message: ChatMessage }) {
+// Admin message bubble
+function AdminMessageBubble({
+  message,
+  customerName,
+  showAvatar,
+}: {
+  message: ChatMessage
+  customerName: string
+  showAvatar: boolean
+}) {
   const isStaff = message.sender_type === 'STAFF'
   const isSystem = message.message_type === 'SYSTEM'
 
   if (isSystem) {
-    return (
-      <div className="flex justify-center">
-        <div className="bg-white rounded-full px-4 py-1.5 shadow-sm border border-border-light">
-          <p className="text-xs text-text-muted text-center">{message.original_message}</p>
-        </div>
-      </div>
-    )
+    return <DateDivider label={message.original_message || ''} />
   }
 
   return (
-    <div className={`flex ${isStaff ? 'justify-end' : 'justify-start'}`}>
+    <div className={`flex ${isStaff ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+      {/* Customer avatar */}
       {!isStaff && (
-        <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center text-white text-xs font-semibold mr-2 flex-shrink-0 mt-1 shadow-sm">
-          G
+        <div className="mr-2 mt-auto mb-1 self-end">
+          {showAvatar ? (
+            <Avatar name={customerName} size="sm" />
+          ) : (
+            <div className="w-8 h-8" aria-hidden="true" />
+          )}
         </div>
       )}
-      <div
-        className={`max-w-[65%] rounded-2xl px-4 py-3 ${
-          isStaff
-            ? 'gradient-primary text-white rounded-br-lg shadow-sm'
-            : 'bg-white text-text rounded-bl-lg shadow-sm border border-border-light'
-        }`}
-      >
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.original_message}</p>
-        <p className={`text-[10px] mt-1.5 ${isStaff ? 'text-white/60' : 'text-text-light'}`}>
+
+      <div className="flex flex-col max-w-[60%]">
+        <div
+          className={`px-4 py-2.5 ${
+            isStaff
+              ? 'bg-indigo-600 text-white rounded-2xl rounded-br-md'
+              : 'bg-gray-100 text-text rounded-2xl rounded-bl-md'
+          }`}
+        >
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.original_message}</p>
+        </div>
+        <p
+          className={`text-[11px] text-text-lighter mt-1 ${
+            isStaff ? 'text-right pr-1' : 'text-left pl-1'
+          }`}
+        >
           {new Date(message.created_at).toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
@@ -449,7 +551,6 @@ function AdminMessageBubble({ message }: { message: ChatMessage }) {
   )
 }
 
-// Helper
 function getTimeAgo(dateStr: string): string {
   const now = new Date()
   const date = new Date(dateStr)

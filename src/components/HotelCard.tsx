@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from './icons/ServiceIcons'
+import { ChevronDownIcon, HotelIcon } from './icons/ServiceIcons'
 
 interface HotelCardProps {
   name: string
@@ -10,19 +10,23 @@ export function HotelCard({ name, address, onClick }: HotelCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full glass-card glass-card-hover rounded-2xl p-4 flex items-center justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      className="w-full glass-card glass-card-hover rounded-2xl px-5 py-4 flex items-center gap-4 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-left"
       aria-label={`View details for ${name}`}
     >
-      <div className="text-left flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          {/* Gold accent dot */}
-          <div className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
-          <h2 className="font-bold text-text text-[14px] leading-tight truncate">{name}</h2>
-        </div>
-        <p className="text-text-muted text-[12px] mt-1 leading-snug pl-4">{address}</p>
+      {/* Hotel icon */}
+      <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-primary flex-shrink-0">
+        <HotelIcon className="w-6 h-6" />
       </div>
-      <div className="flex-shrink-0 ml-3 w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center transition-colors duration-200 group-hover:bg-primary/10">
-        <ArrowRightIcon />
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-text text-[15px] leading-tight truncate">{name}</h3>
+        <p className="text-text-light text-[13px] mt-1 truncate">{address}</p>
+      </div>
+
+      {/* Chevron */}
+      <div className="flex-shrink-0 text-text-lighter">
+        <ChevronDownIcon className="w-5 h-5" />
       </div>
     </button>
   )

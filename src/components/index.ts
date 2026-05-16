@@ -1,3 +1,4 @@
+export { TopHeader } from './TopHeader'
 export { HeroBanner } from './HeroBanner'
 export { HotelCard } from './HotelCard'
 export { ServicesGrid } from './ServicesGrid'

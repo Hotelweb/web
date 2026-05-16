@@ -1,285 +1,334 @@
-// Service Icons for A25 Hotel Dashboard
-// Using SVG icons with premium navy + gold color scheme
+// Service Icons - Clean line icons matching Figma design
+// Each icon uses currentColor so the parent tile can set the color
 
-export const TranslateIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g fill="#1E3A8A" stroke="#1E3A8A" strokeWidth="1">
-      <circle cx="12" cy="16" r="4" />
-      <path d="M6 30c0-4 3-7 6-7s6 3 6 7" fill="none" strokeWidth="1.5" />
-      <circle cx="24" cy="20" r="3.5" />
-      <path d="M18 32c0-3.5 3-6 6-6s6 2.5 6 6" fill="none" strokeWidth="1.5" />
-      <circle cx="36" cy="16" r="4" />
-      <path d="M30 30c0-4 3-7 6-7s6 3 6 7" fill="none" strokeWidth="1.5" />
-      <rect
-        x="18"
-        y="6"
-        width="12"
-        height="10"
-        rx="1.5"
-        fill="white"
-        stroke="#1E3A8A"
-        strokeWidth="1.5"
-      />
-      <path d="M21 10h6M21 13h4" stroke="#1E3A8A" strokeWidth="1" />
-    </g>
+type IconProps = { className?: string }
+
+const baseProps = {
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.5,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+}
+
+// Translation / Languages (A文 letters)
+export const TranslateIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m5 8 6 6" />
+    <path d="m4 14 6-6 2-3" />
+    <path d="M2 5h12" />
+    <path d="M7 2h1" />
+    <path d="m22 22-5-10-5 10" />
+    <path d="M14 18h6" />
   </svg>
 )
 
-export const FrontOfficeIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <circle cx="24" cy="14" r="6" />
-      <path d="M12 40v-8c0-6.6 5.4-12 12-12s12 5.4 12 12v8" />
-    </g>
+// Reception / Concierge (bell)
+export const FrontOfficeIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    <path d="M12 4V2" />
   </svg>
 )
 
-export const RoomServiceIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <rect x="8" y="8" width="18" height="24" rx="2" />
-      <path d="M12 14h10M12 19h10M12 24h6" />
-      <ellipse cx="34" cy="32" rx="8" ry="4" />
-      <path d="M26 32v-4c0-2.2 3.6-4 8-4s8 1.8 8 4v4" />
-      <ellipse cx="34" cy="28" rx="8" ry="4" />
-    </g>
+// Room Service (door / key)
+export const RoomServiceIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M14 12V8.6c0-.6-.5-1.6-1-2C12 6 11 5 9 5H6.5C5.7 5 5 5.7 5 6.5v15.5h9V18" />
+    <path d="M9 14h.01" />
+    <circle cx="18" cy="14" r="3" />
+    <path d="M21 14v4" />
   </svg>
 )
 
-export const RestaurantIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#CA8A04" strokeWidth="1.5" fill="none">
-      <circle cx="24" cy="28" r="12" />
-      <circle cx="24" cy="28" r="8" />
-      <path d="M14 8v10c0 2 1 3 2 3v14" />
-      <path d="M12 8v6M14 8v6M16 8v6" />
-      <path d="M34 8c2 0 3 4 3 8s-1 5-3 5v14" />
-    </g>
+// Restaurant (utensils)
+export const RestaurantIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M3 2v7c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2V2" />
+    <path d="M7 2v20" />
+    <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
   </svg>
 )
 
-export const InRoomDiningIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#CA8A04" strokeWidth="1.5" fill="none">
-      <path d="M8 34h32" />
-      <path d="M10 34c0-12 6-20 14-20s14 8 14 20" />
-      <ellipse cx="24" cy="12" rx="3" ry="2" />
-      <path d="M24 14c-2 2-2 4 0 4s2-2 0-4" fill="#CA8A04" />
-    </g>
+// In-room dining (room service tray)
+export const InRoomDiningIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M5 12h14" />
+    <path d="M5 12a7 7 0 0 1 14 0" />
+    <path d="M3 17h18" />
+    <path d="M12 5V3" />
   </svg>
 )
 
-export const SpecialOfferIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <path d="M8 18v12l4 2v-16l-4 2z" fill="#1E3A8A" />
-      <path d="M12 18h14l8-6v24l-8-6H12" />
-      <circle cx="36" cy="14" r="6" fill="white" stroke="#CA8A04" strokeWidth="1.5" />
-      <text x="32" y="17" fontSize="8" fill="#CA8A04" fontWeight="bold">
-        %
-      </text>
-    </g>
+// Special offer (gift / percentage)
+export const SpecialOfferIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m9 14 6-6" />
+    <circle cx="9.5" cy="8.5" r=".5" fill="currentColor" />
+    <circle cx="14.5" cy="13.5" r=".5" fill="currentColor" />
+    <rect x="3" y="3" width="18" height="18" rx="2" />
   </svg>
 )
 
-export const FacilitiesIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <circle cx="20" cy="28" r="12" />
-      <circle cx="16" cy="24" r="2" fill="#1E3A8A" />
-      <circle cx="22" cy="22" r="2" fill="#1E3A8A" />
-      <circle cx="18" cy="30" r="2" fill="#1E3A8A" />
-      <path
-        d="M36 12c-1.5 0-2.5 2-2.5 4s.5 3 1 4c.5 1 .5 2 .5 3 0 2 1 3 1 3h0s1-1 1-3c0-1 0-2 .5-3 .5-1 1-2 1-4s-1-4-2.5-4z"
-        fill="white"
-      />
-      <ellipse cx="36" cy="26" rx="2" ry="1" />
-    </g>
+// Facilities / WiFi
+export const FacilitiesIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M5 13a10 10 0 0 1 14 0" />
+    <path d="M8.5 16.5a5 5 0 0 1 7 0" />
+    <path d="M2 8.82a15 15 0 0 1 20 0" />
+    <line x1="12" x2="12.01" y1="20" y2="20" />
   </svg>
 )
 
-export const LaundryIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <rect x="10" y="6" width="28" height="36" rx="3" />
-      <circle cx="24" cy="26" r="10" />
-      <circle cx="24" cy="26" r="6" />
-      <circle cx="16" cy="12" r="2" fill="#1E3A8A" />
-      <circle cx="22" cy="12" r="2" fill="#1E3A8A" />
-      <rect x="28" y="10" width="6" height="4" rx="1" />
-    </g>
+// Laundry (shirt)
+export const LaundryIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" />
   </svg>
 )
 
-export const SpaIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#CA8A04" strokeWidth="1.5" fill="none">
-      <path d="M24 36c-6 0-10-4-10-10 0-4 2-8 10-12 8 4 10 8 10 12 0 6-4 10-10 10z" />
-      <path d="M24 24c-3 3-3 8 0 10" />
-      <path d="M24 24c3 3 3 8 0 10" />
-      <path d="M14 28c-4-2-6-6-4-10 4 1 8 4 8 8" />
-      <path d="M34 28c4-2 6-6 4-10-4 1-8 4-8 8" />
-    </g>
+// Spa (leaf / lotus)
+export const SpaIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
   </svg>
 )
 
-export const MotorbikeIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <circle cx="12" cy="32" r="6" />
-      <circle cx="36" cy="32" r="6" />
-      <path d="M18 32h12" />
-      <path d="M24 32l4-12h8l4 12" />
-      <path d="M28 20l-12 6" />
-      <path d="M10 24h10" />
-      <rect x="6" y="12" width="10" height="8" rx="1" fill="white" stroke="#1E3A8A" />
-      <path d="M9 16h4" />
-    </g>
+// Motorbike
+export const MotorbikeIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="6" cy="17" r="4" />
+    <circle cx="18" cy="17" r="4" />
+    <path d="M9 12h2.5l1.7-3.4a1 1 0 0 1 .9-.6h2a1 1 0 0 1 .9 1.4L15 12h3" />
+    <path d="M5 9h6" />
   </svg>
 )
 
-export const AirportShuttleIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <path d="M24 8l-16 20h32L24 8z" />
-      <path d="M8 28h32" />
-      <path d="M24 8v-4" />
-      <circle cx="24" cy="22" r="4" />
-      <path d="M24 20v4M24 25v0" fill="#1E3A8A" />
-    </g>
+// Airport shuttle (plane)
+export const AirportShuttleIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
   </svg>
 )
 
-export const TourTicketIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#CA8A04" strokeWidth="1.5" fill="none">
-      <circle cx="24" cy="24" r="14" />
-      <ellipse cx="24" cy="24" rx="6" ry="14" />
-      <path d="M10 24h28" />
-      <path d="M12 16h24" />
-      <path d="M12 32h24" />
-      <circle cx="30" cy="18" r="3" fill="#CA8A04" />
-    </g>
+// Tour ticket
+export const TourTicketIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+    <path d="M13 5v2" />
+    <path d="M13 17v2" />
+    <path d="M13 11v2" />
   </svg>
 )
 
-export const CustomerFeedbackIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <rect x="10" y="8" width="20" height="28" rx="2" />
-      <rect x="16" y="4" width="8" height="6" rx="1" />
-      <path d="M14 18l3 3 5-5" stroke="#CA8A04" strokeWidth="2" />
-      <path d="M14 28h12" />
-    </g>
+// Customer feedback (chat with heart/star)
+export const CustomerFeedbackIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <path d="m12 7 1.5 3 3.5.5-2.5 2.5.5 3.5-3-1.5-3 1.5.5-3.5L7 10.5l3.5-.5z" />
   </svg>
 )
 
-export const InRoomGuideIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <rect x="14" y="6" width="14" height="28" rx="3" />
-      <circle cx="21" cy="12" r="2" fill="#CA8A04" />
-      <rect x="17" y="18" width="8" height="4" rx="1" />
-      <rect x="17" y="24" width="8" height="4" rx="1" />
-      <path d="M32 10c2 2 2 6 0 8" />
-      <path d="M36 8c3 3 3 10 0 12" />
-    </g>
+// In-room guide (book/info)
+export const InRoomGuideIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+    <path d="M9 7h6" />
+    <path d="M9 11h6" />
   </svg>
 )
 
-export const SocialMediaIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#3B82F6" strokeWidth="1.5" fill="none">
-      <path
-        d="M8 12h18a4 4 0 014 4v8a4 4 0 01-4 4h-4l-4 4v-4H8a4 4 0 01-4-4v-8a4 4 0 014-4z"
-        fill="white"
-      />
-      <path
-        d="M18 20h20a4 4 0 014 4v8a4 4 0 01-4 4h-4l-4 4v-4h-12a4 4 0 01-4-4v-8a4 4 0 014-4z"
-        fill="white"
-      />
-    </g>
+// Social media
+export const SocialMediaIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <rect width="20" height="20" x="2" y="2" rx="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
   </svg>
 )
 
-export const HotelInfoIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <rect x="10" y="12" width="28" height="28" rx="2" />
-      <rect x="14" y="16" width="6" height="6" />
-      <rect x="14" y="26" width="6" height="6" />
-      <rect x="28" y="16" width="6" height="6" />
-      <rect x="28" y="26" width="6" height="6" />
-      <rect x="20" y="32" width="8" height="8" />
-      <path d="M10 12l14-6 14 6" />
-    </g>
+// Hotel info
+export const HotelInfoIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4" />
+    <path d="M12 8h.01" />
   </svg>
 )
 
-export const HotelRulesIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <rect x="10" y="6" width="22" height="32" rx="2" />
-      <path d="M14 14h14" />
-      <path d="M14 20h14" />
-      <path d="M14 26h10" />
-      <circle cx="14" cy="14" r="1" fill="#CA8A04" />
-      <circle cx="14" cy="20" r="1" fill="#CA8A04" />
-      <circle cx="14" cy="26" r="1" fill="#CA8A04" />
-      <path d="M32 6v12l-4-3-4 3V6" fill="#CA8A04" stroke="#CA8A04" />
-    </g>
+// Hotel rules (book)
+export const HotelRulesIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
   </svg>
 )
 
-export const PetsIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
-    <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
-      <ellipse cx="24" cy="30" rx="8" ry="6" fill="#1E3A8A" />
-      <ellipse cx="16" cy="20" rx="4" ry="5" fill="#1E3A8A" />
-      <ellipse cx="32" cy="20" rx="4" ry="5" fill="#1E3A8A" />
-      <ellipse cx="20" cy="14" rx="3" ry="4" fill="#1E3A8A" />
-      <ellipse cx="28" cy="14" rx="3" ry="4" fill="#1E3A8A" />
-    </g>
+// Pets (paw)
+export const PetsIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="11" cy="4" r="2" />
+    <circle cx="18" cy="8" r="2" />
+    <circle cx="4" cy="8" r="2" />
+    <circle cx="14.8" cy="14.6" r="2" />
+    <path d="M9 11.5a3.97 3.97 0 0 0-2.86 1.27c-.74.94-1.31 2.32-1.31 3.93C4.83 18.5 6 19 7 19c2 0 3-2 4-2s2 2 4 2c1 0 2.17-.5 2.17-2.3 0-1.61-.57-2.99-1.31-3.93A3.97 3.97 0 0 0 13 11.5h-4z" />
   </svg>
 )
 
-export const ChatIcon = () => (
-  <svg viewBox="0 0 48 48" fill="none" className="w-6 h-6">
-    <g stroke="currentColor" strokeWidth="2" fill="none">
-      <path
-        d="M14 10h20a4 4 0 014 4v10a4 4 0 01-4 4h-6l-4 4v-4h-10a4 4 0 01-4-4V14a4 4 0 014-4z"
-        fill="currentColor"
-        fillOpacity="0.15"
-      />
-      <path
-        d="M10 18h20a4 4 0 014 4v10a4 4 0 01-4 4h-4l-4 4v-4H10a4 4 0 01-4-4V22a4 4 0 014-4z"
-        fill="currentColor"
-        fillOpacity="0.15"
-      />
-    </g>
+// Bar / Lounge
+export const BarLoungeIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M8 22h8" />
+    <path d="M12 11v11" />
+    <path d="m19 3-7 8-7-8Z" />
   </svg>
 )
 
-export const ArrowRightIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-    <path
-      d="M9 18l6-6-6-6"
-      stroke="#1E3A8A"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+// Gym / Pool
+export const GymPoolIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M14.4 14.4 9.6 9.6" />
+    <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z" />
+    <path d="m21.5 21.5-1.4-1.4" />
+    <path d="M3.9 3.9 2.5 2.5" />
+    <path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z" />
   </svg>
 )
 
-export const BackArrowIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
-    <path
-      d="M15 18l-6-6 6-6"
-      stroke="#1E3A8A"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+// Cleaning / Housekeeping
+export const HousekeepingIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M16 22 7 13l3-3 9 9-3 3Z" />
+    <path d="M5 11 1 7l3-3 4 4" />
+    <path d="m6 18 1 1" />
+    <path d="m12 12 1 1" />
+  </svg>
+)
+
+// Chat / Message
+export const ChatIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
+)
+
+// Arrows
+export const ArrowRightIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m9 18 6-6-6-6" />
+  </svg>
+)
+
+export const ChevronDownIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+)
+
+export const BackArrowIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m15 18-6-6 6-6" />
+  </svg>
+)
+
+export const GlobeIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+    <path d="M2 12h20" />
+  </svg>
+)
+
+export const CloseIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M18 6 6 18" />
+    <path d="m6 6 12 12" />
+  </svg>
+)
+
+export const SendIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m22 2-7 20-4-9-9-4Z" />
+    <path d="M22 2 11 13" />
+  </svg>
+)
+
+export const SearchIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.3-4.3" />
+  </svg>
+)
+
+export const PhoneIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+)
+
+export const VideoIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m22 8-6 4 6 4V8Z" />
+    <rect width="14" height="12" x="2" y="6" rx="2" />
+  </svg>
+)
+
+export const MoreIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="12" cy="12" r="1" fill="currentColor" />
+    <circle cx="12" cy="5" r="1" fill="currentColor" />
+    <circle cx="12" cy="19" r="1" fill="currentColor" />
+  </svg>
+)
+
+export const PaperclipIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 17.93 8.8l-8.58 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+  </svg>
+)
+
+export const ImageIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+    <circle cx="9" cy="9" r="2" />
+    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+  </svg>
+)
+
+export const SmileIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+    <line x1="9" x2="9.01" y1="9" y2="9" />
+    <line x1="15" x2="15.01" y1="9" y2="9" />
+  </svg>
+)
+
+export const PlusIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M5 12h14" />
+    <path d="M12 5v14" />
+  </svg>
+)
+
+export const HotelIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M10 22v-6.57" />
+    <path d="M12 11h.01" />
+    <path d="M12 7h.01" />
+    <path d="M14 15.43V22" />
+    <path d="M15 16a5 5 0 0 0-6 0" />
+    <path d="M16 11h.01" />
+    <path d="M16 7h.01" />
+    <path d="M8 11h.01" />
+    <path d="M8 7h.01" />
+    <rect x="4" y="2" width="16" height="20" rx="2" />
+  </svg>
+)
+
+export const SparkleIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
   </svg>
 )
