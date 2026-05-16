@@ -1,45 +1,44 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { QRCodeSVG } from "qrcode.react";
-import { getHotelBySlug, getHotelServices } from "../api";
-import type { Hotel, HotelService } from "../api";
-import { ServicesGrid } from "../components/ServicesGrid";
-import { HotelCard } from "../components/HotelCard";
-import { ChatButton } from "../components/ChatButton";
-import { ChatWindow } from "../components/ChatWindow";
-import { HotelDetailServices } from "../components/HotelDetailServices";
-import heroImage from "../assets/hero.png";
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { QRCodeSVG } from 'qrcode.react'
+import { getHotelBySlug, getHotelServices } from '../api'
+import type { Hotel, HotelService } from '../api'
+import { ServicesGrid } from '../components/ServicesGrid'
+import { HotelCard } from '../components/HotelCard'
+import { ChatButton } from '../components/ChatButton'
+import { ChatWindow } from '../components/ChatWindow'
+import { HotelDetailServices } from '../components/HotelDetailServices'
+import heroImage from '../assets/hero.png'
 
 export function HotelDetailPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const [hotel, setHotel] = useState<Hotel | null>(null);
-  const [services, setServices] = useState<HotelService[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showChat, setShowChat] = useState(false);
+  const { slug } = useParams<{ slug: string }>()
+  const [hotel, setHotel] = useState<Hotel | null>(null)
+  const [services, setServices] = useState<HotelService[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [showChat, setShowChat] = useState(false)
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug) return
 
     async function loadHotel() {
       try {
-        setLoading(true);
-        const hotelData = await getHotelBySlug(slug!);
-        setHotel(hotelData);
+        setLoading(true)
+        const hotelData = await getHotelBySlug(slug!)
+        setHotel(hotelData)
 
-        const servicesData = await getHotelServices(hotelData.id, "en");
-        setServices(servicesData);
+        const servicesData = await getHotelServices(hotelData.id, 'en')
+        setServices(servicesData)
       } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Failed to load hotel";
-        setError(message);
+        const message = err instanceof Error ? err.message : 'Failed to load hotel'
+        setError(message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    loadHotel();
-  }, [slug]);
+    loadHotel()
+  }, [slug])
 
   if (loading) {
     return (
@@ -49,7 +48,7 @@ export function HotelDetailPage() {
           <p className="text-text-muted text-sm">Loading hotel...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (error || !hotel) {
@@ -71,18 +70,16 @@ export function HotelDetailPage() {
               />
             </svg>
           </div>
-          <p className="text-text text-lg font-semibold mb-1">
-            Hotel not found
-          </p>
+          <p className="text-text text-lg font-semibold mb-1">Hotel not found</p>
           <p className="text-text-muted text-sm">
-            {error || "The link may be invalid or the hotel is inactive."}
+            {error || 'The link may be invalid or the hotel is inactive.'}
           </p>
         </div>
       </div>
-    );
+    )
   }
 
-  const hotelPageUrl = `${window.location.origin}/hotel/${hotel.slug}`;
+  const hotelPageUrl = `${window.location.origin}/hotel/${hotel.slug}`
 
   return (
     <div className="min-h-screen relative bg-background">
@@ -94,7 +91,7 @@ export function HotelDetailPage() {
           className="absolute inset-0 opacity-[0.015] hidden md:block"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, #1e3a8a 1px, transparent 0)`,
-            backgroundSize: "40px 40px",
+            backgroundSize: '40px 40px',
           }}
         />
       </div>
@@ -109,9 +106,9 @@ export function HotelDetailPage() {
           style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80')`,
             maskImage:
-              "linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)",
+              'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)',
             WebkitMaskImage:
-              "linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)",
+              'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)',
           }}
         />
       </div>
@@ -147,13 +144,13 @@ export function HotelDetailPage() {
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
                   <p
                     className="text-lg italic font-normal tracking-widest drop-shadow-lg opacity-90"
-                    style={{ fontFamily: "var(--font-heading)" }}
+                    style={{ fontFamily: 'var(--font-heading)' }}
                   >
                     Welcome to
                   </p>
                   <h1
                     className="text-[22px] font-bold mt-1 tracking-wide drop-shadow-lg leading-tight"
-                    style={{ fontFamily: "var(--font-display)" }}
+                    style={{ fontFamily: 'var(--font-display)' }}
                   >
                     {hotel.name}
                   </h1>
@@ -170,11 +167,7 @@ export function HotelDetailPage() {
 
             {/* Hotel Info Card */}
             <div className="relative px-4 -mt-8 z-20 flex-shrink-0">
-              <HotelCard
-                name={hotel.name}
-                address={hotel.address || ""}
-                onClick={() => {}}
-              />
+              <HotelCard name={hotel.name} address={hotel.address || ''} onClick={() => {}} />
             </div>
 
             {/* Services Grid - Scrollable */}
@@ -194,12 +187,8 @@ export function HotelDetailPage() {
 
       {/* Chat Window */}
       {showChat && (
-        <ChatWindow
-          hotelId={hotel.id}
-          hotelName={hotel.name}
-          onClose={() => setShowChat(false)}
-        />
+        <ChatWindow hotelId={hotel.id} hotelName={hotel.name} onClose={() => setShowChat(false)} />
       )}
     </div>
-  );
+  )
 }

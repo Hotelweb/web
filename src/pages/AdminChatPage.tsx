@@ -1,172 +1,162 @@
-import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
-import {
-  getHotel,
-  getHotelSessions,
-  getChatMessages,
-  sendStaffMessage,
-} from "../api";
-import type { Hotel, ChatSession, ChatMessage } from "../api";
+import { useEffect, useState, useRef } from 'react'
+import { useParams } from 'react-router-dom'
+import { io, Socket } from 'socket.io-client'
+import { getHotel, getHotelSessions, getChatMessages, sendStaffMessage } from '../api'
+import type { Hotel, ChatSession, ChatMessage } from '../api'
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 const LANGUAGE_LABELS: Record<string, string> = {
-  vi: "🇻🇳 Tiếng Việt",
-  en: "🇬🇧 English",
-  ja: "🇯🇵 日本語",
-  zh: "🇨🇳 中文",
-  ko: "🇰🇷 한국어",
-};
+  vi: '🇻🇳 Tiếng Việt',
+  en: '🇬🇧 English',
+  ja: '🇯🇵 日本語',
+  zh: '🇨🇳 中文',
+  ko: '🇰🇷 한국어',
+}
 
 export function AdminChatPage() {
-  const { hotelId } = useParams<{ hotelId: string }>();
-  const [hotel, setHotel] = useState<Hotel | null>(null);
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [activeSession, setActiveSession] = useState<ChatSession | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { hotelId } = useParams<{ hotelId: string }>()
+  const [hotel, setHotel] = useState<Hotel | null>(null)
+  const [sessions, setSessions] = useState<ChatSession[]>([])
+  const [activeSession, setActiveSession] = useState<ChatSession | null>(null)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [inputMessage, setInputMessage] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [socket, setSocket] = useState<Socket | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
-  const staffUserId = 1;
+  const staffUserId = 1
 
   useEffect(() => {
-    if (!hotelId) return;
+    if (!hotelId) return
 
     async function load() {
       try {
         const [hotelData, sessionsData] = await Promise.all([
           getHotel(Number(hotelId)),
           getHotelSessions(Number(hotelId)),
-        ]);
-        setHotel(hotelData);
-        setSessions(sessionsData);
+        ])
+        setHotel(hotelData)
+        setSessions(sessionsData)
       } catch (err) {
-        console.error("Failed to load:", err);
+        console.error('Failed to load:', err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
-    load();
-  }, [hotelId]);
+    load()
+  }, [hotelId])
 
   useEffect(() => {
-    if (!hotelId) return;
+    if (!hotelId) return
 
     const newSocket = io(`${API_BASE}/chat`, {
-      transports: ["websocket"],
-    });
+      transports: ['websocket'],
+    })
 
-    newSocket.on("connect", () => {
-      newSocket.emit("joinHotel", { hotelId: Number(hotelId) });
-    });
+    newSocket.on('connect', () => {
+      newSocket.emit('joinHotel', { hotelId: Number(hotelId) })
+    })
 
-    newSocket.on(
-      "sessionUpdate",
-      (data: { sessionId: number; message: ChatMessage }) => {
-        if (activeSession && data.sessionId === activeSession.id) {
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === data.message.id)) return prev;
-            return [...prev, data.message];
-          });
-        }
+    newSocket.on('sessionUpdate', (data: { sessionId: number; message: ChatMessage }) => {
+      if (activeSession && data.sessionId === activeSession.id) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === data.message.id)) return prev
+          return [...prev, data.message]
+        })
+      }
 
-        getHotelSessions(Number(hotelId))
-          .then(setSessions)
-          .catch(console.error);
-      },
-    );
+      getHotelSessions(Number(hotelId)).then(setSessions).catch(console.error)
+    })
 
-    setSocket(newSocket);
+    setSocket(newSocket)
 
     return () => {
-      newSocket.disconnect();
-    };
-  }, [hotelId, activeSession]);
+      newSocket.disconnect()
+    }
+  }, [hotelId, activeSession])
 
   useEffect(() => {
-    if (!socket || !activeSession) return;
-    socket.emit("joinSession", { sessionId: activeSession.id });
-  }, [socket, activeSession]);
+    if (!socket || !activeSession) return
+    socket.emit('joinSession', { sessionId: activeSession.id })
+  }, [socket, activeSession])
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) return
 
     const handler = (message: ChatMessage) => {
       setMessages((prev) => {
-        if (prev.some((m) => m.id === message.id)) return prev;
-        return [...prev, message];
-      });
-    };
+        if (prev.some((m) => m.id === message.id)) return prev
+        return [...prev, message]
+      })
+    }
 
-    socket.on("newMessage", handler);
+    socket.on('newMessage', handler)
     return () => {
-      socket.off("newMessage", handler);
-    };
-  }, [socket]);
+      socket.off('newMessage', handler)
+    }
+  }, [socket])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   const handleSelectSession = async (session: ChatSession) => {
-    setActiveSession(session);
+    setActiveSession(session)
     try {
-      const msgs = await getChatMessages(session.id);
-      setMessages(msgs);
+      const msgs = await getChatMessages(session.id)
+      setMessages(msgs)
     } catch (err) {
-      console.error("Failed to load messages:", err);
+      console.error('Failed to load messages:', err)
     }
-  };
+  }
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !activeSession) return;
+    if (!inputMessage.trim() || !activeSession) return
 
-    const messageText = inputMessage.trim();
-    setInputMessage("");
+    const messageText = inputMessage.trim()
+    setInputMessage('')
 
     const optimisticMsg: ChatMessage = {
       id: Date.now(),
       session_id: activeSession.id,
-      sender_type: "STAFF",
-      message_type: "TEXT",
-      source_language: "vi",
+      sender_type: 'STAFF',
+      message_type: 'TEXT',
+      source_language: 'vi',
       original_message: messageText,
       translated_message: null,
       is_read: false,
       created_at: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, optimisticMsg]);
+    }
+    setMessages((prev) => [...prev, optimisticMsg])
 
     if (socket?.connected) {
-      socket.emit("sendMessage", {
+      socket.emit('sendMessage', {
         sessionId: activeSession.id,
         message: messageText,
-        source_language: "vi",
-        sender_type: "STAFF",
+        source_language: 'vi',
+        sender_type: 'STAFF',
         sender_user_id: staffUserId,
-      });
+      })
     } else {
       try {
         await sendStaffMessage(activeSession.id, staffUserId, {
           message: messageText,
-          source_language: "vi",
-        });
+          source_language: 'vi',
+        })
       } catch (err) {
-        console.error("Failed to send:", err);
+        console.error('Failed to send:', err)
       }
     }
-  };
+  }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
     }
-  };
+  }
 
   if (loading) {
     return (
@@ -176,7 +166,7 @@ export function AdminChatPage() {
           <p className="text-text-muted text-sm">Loading dashboard...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -184,25 +174,19 @@ export function AdminChatPage() {
       {/* Sidebar - Sessions List */}
       <aside
         className={`${
-          sidebarOpen ? "w-80" : "w-0"
+          sidebarOpen ? 'w-80' : 'w-0'
         } transition-all duration-300 bg-white border-r border-border flex flex-col overflow-hidden flex-shrink-0`}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-border-light">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 shadow-sm">
-              <svg
-                viewBox="0 0 24 24"
-                className="w-5 h-5 text-white"
-                fill="currentColor"
-              >
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
                 <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
               </svg>
             </div>
             <div className="min-w-0">
-              <h1 className="font-bold text-text text-sm truncate">
-                {hotel?.name || "Hotel"}
-              </h1>
+              <h1 className="font-bold text-text text-sm truncate">{hotel?.name || 'Hotel'}</h1>
               <p className="text-xs text-text-muted">Chat Management</p>
             </div>
           </div>
@@ -270,7 +254,7 @@ export function AdminChatPage() {
           {activeSession ? (
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-sm">
-                {(activeSession.customer_name || "G")[0].toUpperCase()}
+                {(activeSession.customer_name || 'G')[0].toUpperCase()}
               </div>
               <div className="min-w-0">
                 <p className="font-semibold text-text text-sm truncate">
@@ -283,20 +267,20 @@ export function AdminChatPage() {
                   </span>
                   <span
                     className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium ${
-                      activeSession.status === "OPEN"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : activeSession.status === "ASSIGNED"
-                          ? "bg-blue-50 text-blue-700"
-                          : "bg-gray-100 text-text-muted"
+                      activeSession.status === 'OPEN'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : activeSession.status === 'ASSIGNED'
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'bg-gray-100 text-text-muted'
                     }`}
                   >
                     <span
                       className={`w-1.5 h-1.5 rounded-full ${
-                        activeSession.status === "OPEN"
-                          ? "bg-emerald-500"
-                          : activeSession.status === "ASSIGNED"
-                            ? "bg-blue-500"
-                            : "bg-gray-400"
+                        activeSession.status === 'OPEN'
+                          ? 'bg-emerald-500'
+                          : activeSession.status === 'ASSIGNED'
+                            ? 'bg-blue-500'
+                            : 'bg-gray-400'
                       }`}
                     />
                     {activeSession.status}
@@ -336,11 +320,7 @@ export function AdminChatPage() {
                   className="w-11 h-11 rounded-xl gradient-primary text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer hover:shadow-premium transition-all duration-200 shadow-sm"
                   aria-label="Send message"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-5 h-5"
-                    fill="currentColor"
-                  >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
                     <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
                   </svg>
                 </button>
@@ -375,7 +355,7 @@ export function AdminChatPage() {
         )}
       </main>
     </div>
-  );
+  )
 }
 
 // Session Item Component
@@ -384,72 +364,67 @@ function SessionItem({
   isActive,
   onClick,
 }: {
-  session: ChatSession;
-  isActive: boolean;
-  onClick: () => void;
+  session: ChatSession
+  isActive: boolean
+  onClick: () => void
 }) {
-  const timeAgo = getTimeAgo(session.created_at);
+  const timeAgo = getTimeAgo(session.created_at)
 
   return (
     <button
       onClick={onClick}
       className={`w-full text-left p-4 hover:bg-background transition-colors duration-200 cursor-pointer ${
-        isActive ? "bg-primary/[0.04] border-l-3 border-l-primary" : ""
+        isActive ? 'bg-primary/[0.04] border-l-3 border-l-primary' : ''
       }`}
     >
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-sm">
-          {(session.customer_name || "G")[0].toUpperCase()}
+          {(session.customer_name || 'G')[0].toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <p className="font-medium text-text text-sm truncate">
               {session.customer_name || `Guest #${session.id}`}
             </p>
-            <span className="text-[11px] text-text-light flex-shrink-0">
-              {timeAgo}
-            </span>
+            <span className="text-[11px] text-text-light flex-shrink-0">{timeAgo}</span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-xs text-text-muted truncate">
-              {LANGUAGE_LABELS[session.customer_language] ||
-                session.customer_language}
+              {LANGUAGE_LABELS[session.customer_language] || session.customer_language}
             </span>
             <span
               className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                session.status === "OPEN"
-                  ? "bg-emerald-400"
-                  : session.status === "ASSIGNED"
-                    ? "bg-blue-400"
-                    : "bg-gray-300"
+                session.status === 'OPEN'
+                  ? 'bg-emerald-400'
+                  : session.status === 'ASSIGNED'
+                    ? 'bg-blue-400'
+                    : 'bg-gray-300'
               }`}
             />
           </div>
         </div>
       </div>
     </button>
-  );
+  )
 }
 
 // Admin Message Bubble
 function AdminMessageBubble({ message }: { message: ChatMessage }) {
-  const isStaff = message.sender_type === "STAFF";
-  const isSystem = message.message_type === "SYSTEM";
+  const isStaff = message.sender_type === 'STAFF'
+  const isSystem = message.message_type === 'SYSTEM'
 
   if (isSystem) {
     return (
       <div className="flex justify-center">
         <div className="bg-white rounded-full px-4 py-1.5 shadow-sm border border-border-light">
-          <p className="text-xs text-text-muted text-center">
-            {message.original_message}
-          </p>
+          <p className="text-xs text-text-muted text-center">{message.original_message}</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className={`flex ${isStaff ? "justify-end" : "justify-start"}`}>
+    <div className={`flex ${isStaff ? 'justify-end' : 'justify-start'}`}>
       {!isStaff && (
         <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center text-white text-xs font-semibold mr-2 flex-shrink-0 mt-1 shadow-sm">
           G
@@ -458,39 +433,33 @@ function AdminMessageBubble({ message }: { message: ChatMessage }) {
       <div
         className={`max-w-[65%] rounded-2xl px-4 py-3 ${
           isStaff
-            ? "gradient-primary text-white rounded-br-lg shadow-sm"
-            : "bg-white text-text rounded-bl-lg shadow-sm border border-border-light"
+            ? 'gradient-primary text-white rounded-br-lg shadow-sm'
+            : 'bg-white text-text rounded-bl-lg shadow-sm border border-border-light'
         }`}
       >
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">
-          {message.original_message}
-        </p>
-        <p
-          className={`text-[10px] mt-1.5 ${
-            isStaff ? "text-white/60" : "text-text-light"
-          }`}
-        >
+        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.original_message}</p>
+        <p className={`text-[10px] mt-1.5 ${isStaff ? 'text-white/60' : 'text-text-light'}`}>
           {new Date(message.created_at).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
+            hour: '2-digit',
+            minute: '2-digit',
           })}
         </p>
       </div>
     </div>
-  );
+  )
 }
 
 // Helper
 function getTimeAgo(dateStr: string): string {
-  const now = new Date();
-  const date = new Date(dateStr);
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
+  const now = new Date()
+  const date = new Date(dateStr)
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
 
-  if (diffMins < 1) return "now";
-  if (diffMins < 60) return `${diffMins}m`;
-  const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `${diffHours}h`;
-  const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays}d`;
+  if (diffMins < 1) return 'now'
+  if (diffMins < 60) return `${diffMins}m`
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return `${diffHours}h`
+  const diffDays = Math.floor(diffHours / 24)
+  return `${diffDays}d`
 }

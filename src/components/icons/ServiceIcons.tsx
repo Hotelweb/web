@@ -23,7 +23,7 @@ export const TranslateIcon = () => (
       <path d="M21 10h6M21 13h4" stroke="#1E3A8A" strokeWidth="1" />
     </g>
   </svg>
-);
+)
 
 export const FrontOfficeIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -32,7 +32,7 @@ export const FrontOfficeIcon = () => (
       <path d="M12 40v-8c0-6.6 5.4-12 12-12s12 5.4 12 12v8" />
     </g>
   </svg>
-);
+)
 
 export const RoomServiceIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -44,7 +44,7 @@ export const RoomServiceIcon = () => (
       <ellipse cx="34" cy="28" rx="8" ry="4" />
     </g>
   </svg>
-);
+)
 
 export const RestaurantIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -56,7 +56,7 @@ export const RestaurantIcon = () => (
       <path d="M34 8c2 0 3 4 3 8s-1 5-3 5v14" />
     </g>
   </svg>
-);
+)
 
 export const InRoomDiningIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -67,27 +67,20 @@ export const InRoomDiningIcon = () => (
       <path d="M24 14c-2 2-2 4 0 4s2-2 0-4" fill="#CA8A04" />
     </g>
   </svg>
-);
+)
 
 export const SpecialOfferIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
     <g stroke="#1E3A8A" strokeWidth="1.5" fill="none">
       <path d="M8 18v12l4 2v-16l-4 2z" fill="#1E3A8A" />
       <path d="M12 18h14l8-6v24l-8-6H12" />
-      <circle
-        cx="36"
-        cy="14"
-        r="6"
-        fill="white"
-        stroke="#CA8A04"
-        strokeWidth="1.5"
-      />
+      <circle cx="36" cy="14" r="6" fill="white" stroke="#CA8A04" strokeWidth="1.5" />
       <text x="32" y="17" fontSize="8" fill="#CA8A04" fontWeight="bold">
         %
       </text>
     </g>
   </svg>
-);
+)
 
 export const FacilitiesIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -103,7 +96,7 @@ export const FacilitiesIcon = () => (
       <ellipse cx="36" cy="26" rx="2" ry="1" />
     </g>
   </svg>
-);
+)
 
 export const LaundryIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -116,7 +109,7 @@ export const LaundryIcon = () => (
       <rect x="28" y="10" width="6" height="4" rx="1" />
     </g>
   </svg>
-);
+)
 
 export const SpaIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -128,7 +121,7 @@ export const SpaIcon = () => (
       <path d="M34 28c4-2 6-6 4-10-4 1-8 4-8 8" />
     </g>
   </svg>
-);
+)
 
 export const MotorbikeIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -139,19 +132,11 @@ export const MotorbikeIcon = () => (
       <path d="M24 32l4-12h8l4 12" />
       <path d="M28 20l-12 6" />
       <path d="M10 24h10" />
-      <rect
-        x="6"
-        y="12"
-        width="10"
-        height="8"
-        rx="1"
-        fill="white"
-        stroke="#1E3A8A"
-      />
+      <rect x="6" y="12" width="10" height="8" rx="1" fill="white" stroke="#1E3A8A" />
       <path d="M9 16h4" />
     </g>
   </svg>
-);
+)
 
 export const AirportShuttleIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -163,7 +148,7 @@ export const AirportShuttleIcon = () => (
       <path d="M24 20v4M24 25v0" fill="#1E3A8A" />
     </g>
   </svg>
-);
+)
 
 export const TourTicketIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -176,7 +161,7 @@ export const TourTicketIcon = () => (
       <circle cx="30" cy="18" r="3" fill="#CA8A04" />
     </g>
   </svg>
-);
+)
 
 export const CustomerFeedbackIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -187,7 +172,7 @@ export const CustomerFeedbackIcon = () => (
       <path d="M14 28h12" />
     </g>
   </svg>
-);
+)
 
 export const InRoomGuideIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -200,7 +185,7 @@ export const InRoomGuideIcon = () => (
       <path d="M36 8c3 3 3 10 0 12" />
     </g>
   </svg>
-);
+)
 
 export const SocialMediaIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -215,7 +200,7 @@ export const SocialMediaIcon = () => (
       />
     </g>
   </svg>
-);
+)
 
 export const HotelInfoIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -229,7 +214,7 @@ export const HotelInfoIcon = () => (
       <path d="M10 12l14-6 14 6" />
     </g>
   </svg>
-);
+)
 
 export const HotelRulesIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -244,7 +229,7 @@ export const HotelRulesIcon = () => (
       <path d="M32 6v12l-4-3-4 3V6" fill="#CA8A04" stroke="#CA8A04" />
     </g>
   </svg>
-);
+)
 
 export const PetsIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-8 h-8">
@@ -256,7 +241,7 @@ export const PetsIcon = () => (
       <ellipse cx="28" cy="14" rx="3" ry="4" fill="#1E3A8A" />
     </g>
   </svg>
-);
+)
 
 export const ChatIcon = () => (
   <svg viewBox="0 0 48 48" fill="none" className="w-6 h-6">
@@ -273,7 +258,7 @@ export const ChatIcon = () => (
       />
     </g>
   </svg>
-);
+)
 
 export const ArrowRightIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
@@ -285,7 +270,7 @@ export const ArrowRightIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
 export const BackArrowIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
@@ -297,4 +282,4 @@ export const BackArrowIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)

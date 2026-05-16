@@ -1,7 +1,7 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { HomePage } from "./pages/HomePage";
-import { HotelDetailPage } from "./pages/HotelDetailPage";
-import { AdminChatPage } from "./pages/AdminChatPage";
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HomePage } from './pages/HomePage'
+import { HotelDetailPage } from './pages/HotelDetailPage'
+import { AdminChatPage } from './pages/AdminChatPage'
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
         <Route path="/admin/:hotelId/chat" element={<AdminChatPage />} />
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

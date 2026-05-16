@@ -1,5 +1,5 @@
-import { QRCode } from "./QRCode";
-import heroImage from "../assets/hero.png";
+import { QRCode } from './QRCode'
+import heroImage from '../assets/hero.png'
 
 export function HeroBanner() {
   return (
@@ -27,13 +27,13 @@ export function HeroBanner() {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
           <p
             className="text-lg italic font-normal tracking-widest drop-shadow-lg opacity-90"
-            style={{ fontFamily: "var(--font-heading)" }}
+            style={{ fontFamily: 'var(--font-heading)' }}
           >
             Welcome to
           </p>
           <h1
             className="text-[22px] font-bold mt-1 tracking-wide drop-shadow-lg leading-tight"
-            style={{ fontFamily: "var(--font-display)" }}
+            style={{ fontFamily: 'var(--font-display)' }}
           >
             A25 Hotel - 684 Minh Khai
           </h1>
@@ -47,5 +47,5 @@ export function HeroBanner() {
         </div>
       </div>
     </div>
-  );
+  )
 }

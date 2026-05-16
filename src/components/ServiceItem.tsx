@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react'
 
 interface ServiceItemProps {
-  icon: ReactNode;
-  label: string;
-  onClick?: () => void;
+  icon: ReactNode
+  label: string
+  onClick?: () => void
 }
 
 export function ServiceItem({ icon, label, onClick }: ServiceItemProps) {
@@ -22,5 +22,5 @@ export function ServiceItem({ icon, label, onClick }: ServiceItemProps) {
         {label}
       </span>
     </button>
-  );
+  )
 }

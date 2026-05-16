@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Karla:wght@300;400;500;600;700&family=Playfair+Display+SC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Karla:wght@300;400;500;600;700&family=Playfair+Display+SC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import 'tailwindcss';
 
 @theme {
-  --font-heading: "Playfair Display", serif;
-  --font-display: "Playfair Display SC", serif;
-  --font-body: "Karla", sans-serif;
+  --font-heading: 'Playfair Display', serif;
+  --font-display: 'Playfair Display SC', serif;
+  --font-body: 'Karla', sans-serif;
 
   --color-primary: #1e3a8a;
   --color-primary-light: #2563eb;

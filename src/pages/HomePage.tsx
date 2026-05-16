@@ -1,38 +1,38 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getHotels } from "../api";
-import type { Hotel } from "../api";
-import { HeroBanner } from "../components/HeroBanner";
-import { HotelCard } from "../components/HotelCard";
-import { ServicesGrid } from "../components/ServicesGrid";
-import { ChatButton } from "../components/ChatButton";
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getHotels } from '../api'
+import type { Hotel } from '../api'
+import { HeroBanner } from '../components/HeroBanner'
+import { HotelCard } from '../components/HotelCard'
+import { ServicesGrid } from '../components/ServicesGrid'
+import { ChatButton } from '../components/ChatButton'
 
 export function HomePage() {
-  const navigate = useNavigate();
-  const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [, setLoading] = useState(true);
+  const navigate = useNavigate()
+  const [hotels, setHotels] = useState<Hotel[]>([])
+  const [, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadHotels() {
       try {
-        const data = await getHotels();
-        setHotels(data);
+        const data = await getHotels()
+        setHotels(data)
       } catch (err) {
-        console.error("Failed to load hotels:", err);
+        console.error('Failed to load hotels:', err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
-    loadHotels();
-  }, []);
+    loadHotels()
+  }, [])
 
   const handleHotelClick = (hotel: Hotel) => {
-    navigate(`/hotel/${hotel.slug}`);
-  };
+    navigate(`/hotel/${hotel.slug}`)
+  }
 
   const handleServiceClick = (service: string) => {
-    console.log(`Service clicked: ${service}`);
-  };
+    console.log(`Service clicked: ${service}`)
+  }
 
   return (
     <div className="min-h-screen relative bg-background">
@@ -44,7 +44,7 @@ export function HomePage() {
           className="absolute inset-0 opacity-[0.015] hidden md:block"
           style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, #1e3a8a 1px, transparent 0)`,
-            backgroundSize: "40px 40px",
+            backgroundSize: '40px 40px',
           }}
         />
       </div>
@@ -59,9 +59,9 @@ export function HomePage() {
           style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80')`,
             maskImage:
-              "linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)",
+              'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)',
             WebkitMaskImage:
-              "linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)",
+              'linear-gradient(to left, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)',
           }}
         />
       </div>
@@ -83,7 +83,7 @@ export function HomePage() {
                     <HotelCard
                       key={hotel.id}
                       name={hotel.name}
-                      address={hotel.address || ""}
+                      address={hotel.address || ''}
                       onClick={() => handleHotelClick(hotel)}
                     />
                   ))}
@@ -107,5 +107,5 @@ export function HomePage() {
 
       <ChatButton onClick={() => {}} />
     </div>
-  );
+  )
 }

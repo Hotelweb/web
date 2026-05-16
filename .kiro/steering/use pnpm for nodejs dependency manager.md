@@ -9,13 +9,14 @@ inclusion: always
 **MANDATORY**: Use `pnpm` for all Node.js dependency management. Never use `npm` or `yarn`.
 
 ### Preferred Order
+
 1. **pnpm** - Efficient disk usage, strict dependency resolution
 
 ### Installation Commands
 
 ```bash
 
-# Using pnpm  
+# Using pnpm
 pnpm install
 pnpm add <package>
 pnpm remove <package>
@@ -30,6 +31,7 @@ pnpm run <script>
 ### Script Execution
 
 Always use the detected package manager for running scripts:
+
 - `pnpm build` instead of `npm run build`
 
 This ensures consistent dependency resolution and optimal performance across the project.
