@@ -1,9 +1,9 @@
-import { ArrowRightIcon } from "./icons/ServiceIcons";
+import { ArrowRightIcon } from './icons/ServiceIcons'
 
 interface HotelCardProps {
-  name: string;
-  address: string;
-  onClick?: () => void;
+  name: string
+  address: string
+  onClick?: () => void
 }
 
 export function HotelCard({ name, address, onClick }: HotelCardProps) {
@@ -17,17 +17,13 @@ export function HotelCard({ name, address, onClick }: HotelCardProps) {
         <div className="flex items-center gap-2">
           {/* Gold accent dot */}
           <div className="w-2 h-2 rounded-full bg-accent flex-shrink-0" />
-          <h2 className="font-bold text-text text-[14px] leading-tight truncate">
-            {name}
-          </h2>
+          <h2 className="font-bold text-text text-[14px] leading-tight truncate">{name}</h2>
         </div>
-        <p className="text-text-muted text-[12px] mt-1 leading-snug pl-4">
-          {address}
-        </p>
+        <p className="text-text-muted text-[12px] mt-1 leading-snug pl-4">{address}</p>
       </div>
       <div className="flex-shrink-0 ml-3 w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center transition-colors duration-200 group-hover:bg-primary/10">
         <ArrowRightIcon />
       </div>
     </button>
-  );
+  )
 }

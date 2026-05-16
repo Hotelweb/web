@@ -1,94 +1,92 @@
-import { useState, useEffect, useRef } from "react";
-import { io, Socket } from "socket.io-client";
-import { createChatSession, getChatMessages } from "../api";
-import type { ChatMessage, ChatSession } from "../api";
+import { useState, useEffect, useRef } from 'react'
+import { io, Socket } from 'socket.io-client'
+import { createChatSession, getChatMessages } from '../api'
+import type { ChatMessage, ChatSession } from '../api'
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 interface Language {
-  code: string;
-  name: string;
-  nativeName: string;
-  flag: string;
+  code: string
+  name: string
+  nativeName: string
+  flag: string
 }
 
 const LANGUAGES: Language[] = [
-  { code: "vi", name: "Vietnamese", nativeName: "Tiếng Việt", flag: "🇻🇳" },
-  { code: "en", name: "English", nativeName: "English", flag: "🇬🇧" },
-  { code: "ja", name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
-  { code: "zh", name: "Chinese", nativeName: "中文", flag: "🇨🇳" },
-  { code: "ko", name: "Korean", nativeName: "한국어", flag: "🇰🇷" },
-];
+  { code: 'vi', name: 'Vietnamese', nativeName: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧' },
+  { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
+  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
+  { code: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷' },
+]
 
 interface ChatWindowProps {
-  hotelId: number;
-  hotelName: string;
-  onClose: () => void;
+  hotelId: number
+  hotelName: string
+  onClose: () => void
 }
 
 export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
-  const [step, setStep] = useState<"language" | "chat">("language");
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
-  const [session, setSession] = useState<ChatSession | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [step, setStep] = useState<'language' | 'chat'>('language')
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
+  const [session, setSession] = useState<ChatSession | null>(null)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [inputMessage, setInputMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [socket, setSocket] = useState<Socket | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!session) return;
+    if (!session) return
 
     const newSocket = io(`${API_BASE}/chat`, {
-      transports: ["websocket"],
-    });
+      transports: ['websocket'],
+    })
 
-    newSocket.on("connect", () => {
-      newSocket.emit("joinSession", { sessionId: session.id });
-    });
+    newSocket.on('connect', () => {
+      newSocket.emit('joinSession', { sessionId: session.id })
+    })
 
-    newSocket.on("newMessage", (message: ChatMessage) => {
+    newSocket.on('newMessage', (message: ChatMessage) => {
       setMessages((prev) => {
-        if (prev.some((m) => m.id === message.id)) return prev;
-        return [...prev, message];
-      });
-    });
+        if (prev.some((m) => m.id === message.id)) return prev
+        return [...prev, message]
+      })
+    })
 
-    setSocket(newSocket);
+    setSocket(newSocket)
 
     return () => {
-      newSocket.disconnect();
-    };
-  }, [session]);
+      newSocket.disconnect()
+    }
+  }, [session])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   const handleLanguageSelect = async (langCode: string) => {
-    setSelectedLanguage(langCode);
-    setLoading(true);
+    setSelectedLanguage(langCode)
+    setLoading(true)
 
     try {
-      const storageKey = `chat_session_${hotelId}_${langCode}`;
-      const existingToken = localStorage.getItem(storageKey);
+      const storageKey = `chat_session_${hotelId}_${langCode}`
+      const existingToken = localStorage.getItem(storageKey)
 
-      let chatSession: ChatSession;
+      let chatSession: ChatSession
 
       if (existingToken) {
         try {
-          const res = await fetch(
-            `${API_BASE}/chat/sessions/token/${existingToken}`,
-          );
+          const res = await fetch(`${API_BASE}/chat/sessions/token/${existingToken}`)
           if (res.ok) {
-            chatSession = await res.json();
-            if (chatSession.status !== "CLOSED") {
-              setSession(chatSession);
-              const msgs = await getChatMessages(chatSession.id);
-              setMessages(msgs);
-              setStep("chat");
-              setLoading(false);
-              return;
+            chatSession = await res.json()
+            if (chatSession.status !== 'CLOSED') {
+              setSession(chatSession)
+              const msgs = await getChatMessages(chatSession.id)
+              setMessages(msgs)
+              setStep('chat')
+              setLoading(false)
+              return
             }
           }
         } catch {
@@ -99,80 +97,74 @@ export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
       chatSession = await createChatSession({
         hotel_id: hotelId,
         customer_language: langCode,
-      });
+      })
 
-      localStorage.setItem(storageKey, chatSession.customer_token);
-      setSession(chatSession);
+      localStorage.setItem(storageKey, chatSession.customer_token)
+      setSession(chatSession)
 
-      const msgs = await getChatMessages(chatSession.id);
-      setMessages(msgs);
-      setStep("chat");
+      const msgs = await getChatMessages(chatSession.id)
+      setMessages(msgs)
+      setStep('chat')
     } catch (err) {
-      console.error("Failed to create chat session:", err);
+      console.error('Failed to create chat session:', err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !session || !selectedLanguage) return;
+    if (!inputMessage.trim() || !session || !selectedLanguage) return
 
-    const messageText = inputMessage.trim();
-    setInputMessage("");
+    const messageText = inputMessage.trim()
+    setInputMessage('')
 
     const optimisticMsg: ChatMessage = {
       id: Date.now(),
       session_id: session.id,
-      sender_type: "CUSTOMER",
-      message_type: "TEXT",
+      sender_type: 'CUSTOMER',
+      message_type: 'TEXT',
       source_language: selectedLanguage,
       original_message: messageText,
       translated_message: null,
       is_read: false,
       created_at: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, optimisticMsg]);
+    }
+    setMessages((prev) => [...prev, optimisticMsg])
 
     if (socket?.connected) {
-      socket.emit("sendMessage", {
+      socket.emit('sendMessage', {
         sessionId: session.id,
         message: messageText,
         source_language: selectedLanguage,
-        sender_type: "CUSTOMER",
-      });
+        sender_type: 'CUSTOMER',
+      })
     } else {
       try {
-        await fetch(
-          `${API_BASE}/chat/sessions/${session.id}/messages/customer`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              message: messageText,
-              source_language: selectedLanguage,
-            }),
-          },
-        );
+        await fetch(`${API_BASE}/chat/sessions/${session.id}/messages/customer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: messageText,
+            source_language: selectedLanguage,
+          }),
+        })
       } catch (err) {
-        console.error("Failed to send message:", err);
+        console.error('Failed to send message:', err)
       }
     }
-  };
+  }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center sm:justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-md"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" onClick={onClose} />
 
       {/* Chat Container - full screen on mobile, modal on desktop */}
       <div className="relative w-full h-full sm:w-[420px] sm:h-[680px] sm:max-h-[90vh] bg-white sm:rounded-2xl overflow-hidden flex flex-col animate-slide-up shadow-premium-lg">
@@ -185,13 +177,11 @@ export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
               </svg>
             </div>
             <div>
-              <p className="font-semibold text-[15px] leading-tight">
-                {hotelName}
-              </p>
+              <p className="font-semibold text-[15px] leading-tight">{hotelName}</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <p className="text-xs text-white/80">
-                  {step === "language" ? "Select language" : "Online"}
+                  {step === 'language' ? 'Select language' : 'Online'}
                 </p>
               </div>
             </div>
@@ -214,7 +204,7 @@ export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
         </div>
 
         {/* Content */}
-        {step === "language" ? (
+        {step === 'language' ? (
           <LanguageSelector
             languages={LANGUAGES}
             onSelect={handleLanguageSelect}
@@ -232,7 +222,7 @@ export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
         )}
       </div>
     </div>
-  );
+  )
 }
 
 // Language Selector Component
@@ -241,9 +231,9 @@ function LanguageSelector({
   onSelect,
   loading,
 }: {
-  languages: Language[];
-  onSelect: (code: string) => void;
-  loading: boolean;
+  languages: Language[]
+  onSelect: (code: string) => void
+  loading: boolean
 }) {
   return (
     <div className="flex-1 flex flex-col p-5 sm:p-6 overflow-y-auto">
@@ -291,11 +281,7 @@ function LanguageSelector({
               stroke="currentColor"
               strokeWidth="2"
             >
-              <path
-                d="M9 18l6-6-6-6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         ))}
@@ -308,7 +294,7 @@ function LanguageSelector({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Chat Messages Component
@@ -320,12 +306,12 @@ function ChatMessages({
   onKeyPress,
   messagesEndRef,
 }: {
-  messages: ChatMessage[];
-  inputMessage: string;
-  onInputChange: (value: string) => void;
-  onSend: () => void;
-  onKeyPress: (e: React.KeyboardEvent) => void;
-  messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  messages: ChatMessage[]
+  inputMessage: string
+  onInputChange: (value: string) => void
+  onSend: () => void
+  onKeyPress: (e: React.KeyboardEvent) => void
+  messagesEndRef: React.RefObject<HTMLDivElement | null>
 }) {
   return (
     <>
@@ -383,30 +369,26 @@ function ChatMessages({
         </div>
       </div>
     </>
-  );
+  )
 }
 
 // Message Bubble Component
 function MessageBubble({ message }: { message: ChatMessage }) {
-  const isCustomer = message.sender_type === "CUSTOMER";
-  const isSystem = message.message_type === "SYSTEM";
+  const isCustomer = message.sender_type === 'CUSTOMER'
+  const isSystem = message.message_type === 'SYSTEM'
 
   if (isSystem) {
     return (
       <div className="flex justify-center my-3">
         <div className="bg-white/80 backdrop-blur-sm rounded-full px-4 py-1.5 max-w-[85%] shadow-sm border border-border-light">
-          <p className="text-xs text-text-muted text-center">
-            {message.original_message}
-          </p>
+          <p className="text-xs text-text-muted text-center">{message.original_message}</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div
-      className={`flex ${isCustomer ? "justify-end" : "justify-start"} animate-fade-in`}
-    >
+    <div className={`flex ${isCustomer ? 'justify-end' : 'justify-start'} animate-fade-in`}>
       {/* Staff avatar */}
       {!isCustomer && (
         <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white flex-shrink-0 mr-2 mt-auto mb-1 shadow-sm">
@@ -418,24 +400,20 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       <div
         className={`max-w-[78%] rounded-2xl px-4 py-3 ${
           isCustomer
-            ? "gradient-primary text-white rounded-br-md shadow-sm"
-            : "bg-white text-text rounded-bl-md shadow-sm border border-border-light"
+            ? 'gradient-primary text-white rounded-br-md shadow-sm'
+            : 'bg-white text-text rounded-bl-md shadow-sm border border-border-light'
         }`}
       >
         <p className="text-[14px] leading-relaxed whitespace-pre-wrap">
           {message.original_message}
         </p>
-        <p
-          className={`text-[10px] mt-1.5 ${
-            isCustomer ? "text-white/50" : "text-text-light"
-          }`}
-        >
+        <p className={`text-[10px] mt-1.5 ${isCustomer ? 'text-white/50' : 'text-text-light'}`}>
           {new Date(message.created_at).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
+            hour: '2-digit',
+            minute: '2-digit',
           })}
         </p>
       </div>
     </div>
-  );
+  )
 }

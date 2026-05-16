@@ -1,5 +1,5 @@
-import type { HotelService } from "../api";
-import { ServiceItem } from "./ServiceItem";
+import type { HotelService } from '../api'
+import { ServiceItem } from './ServiceItem'
 import {
   TranslateIcon,
   FrontOfficeIcon,
@@ -19,34 +19,34 @@ import {
   HotelInfoIcon,
   HotelRulesIcon,
   PetsIcon,
-} from "./icons/ServiceIcons";
+} from './icons/ServiceIcons'
 
 // Map service titles to icons
 const iconMap: Record<string, React.ReactNode> = {
-  "How to Translate": <TranslateIcon />,
-  "Front Office Services": <FrontOfficeIcon />,
-  "Room Service": <RoomServiceIcon />,
+  'How to Translate': <TranslateIcon />,
+  'Front Office Services': <FrontOfficeIcon />,
+  'Room Service': <RoomServiceIcon />,
   Restaurant: <RestaurantIcon />,
-  "In-room Dinning": <InRoomDiningIcon />,
-  "In-room Dining": <InRoomDiningIcon />,
-  "Special Offer (Membership)": <SpecialOfferIcon />,
-  "Special Offer": <SpecialOfferIcon />,
+  'In-room Dinning': <InRoomDiningIcon />,
+  'In-room Dining': <InRoomDiningIcon />,
+  'Special Offer (Membership)': <SpecialOfferIcon />,
+  'Special Offer': <SpecialOfferIcon />,
   Facilities: <FacilitiesIcon />,
-  "Laundry Service": <LaundryIcon />,
+  'Laundry Service': <LaundryIcon />,
   Spa: <SpaIcon />,
-  "Spa & Massage": <SpaIcon />,
-  "Motorbike Rental": <MotorbikeIcon />,
-  "Airport shuttle, intercity transportation": <AirportShuttleIcon />,
-  "Airport Transfer": <AirportShuttleIcon />,
-  "Tour/Ticket": <TourTicketIcon />,
-  "Beach Tour": <TourTicketIcon />,
-  "Customer Feedback": <CustomerFeedbackIcon />,
-  "In-room facilities user guide": <InRoomGuideIcon />,
-  "Social Media": <SocialMediaIcon />,
-  "Hotel information": <HotelInfoIcon />,
-  "Hotel Rules": <HotelRulesIcon />,
+  'Spa & Massage': <SpaIcon />,
+  'Motorbike Rental': <MotorbikeIcon />,
+  'Airport shuttle, intercity transportation': <AirportShuttleIcon />,
+  'Airport Transfer': <AirportShuttleIcon />,
+  'Tour/Ticket': <TourTicketIcon />,
+  'Beach Tour': <TourTicketIcon />,
+  'Customer Feedback': <CustomerFeedbackIcon />,
+  'In-room facilities user guide': <InRoomGuideIcon />,
+  'Social Media': <SocialMediaIcon />,
+  'Hotel information': <HotelInfoIcon />,
+  'Hotel Rules': <HotelRulesIcon />,
   Pets: <PetsIcon />,
-};
+}
 
 // Default icon for services without a matching icon
 function DefaultServiceIcon() {
@@ -57,11 +57,11 @@ function DefaultServiceIcon() {
         <path d="M24 16v8l5 5" />
       </g>
     </svg>
-  );
+  )
 }
 
 interface HotelDetailServicesProps {
-  services: HotelService[];
+  services: HotelService[]
 }
 
 export function HotelDetailServices({ services }: HotelDetailServicesProps) {
@@ -72,7 +72,7 @@ export function HotelDetailServices({ services }: HotelDetailServicesProps) {
       aria-label="Hotel services"
     >
       {services.map((service) => {
-        const icon = iconMap[service.title] || <DefaultServiceIcon />;
+        const icon = iconMap[service.title] || <DefaultServiceIcon />
         return (
           <ServiceItem
             key={service.id}
@@ -80,8 +80,8 @@ export function HotelDetailServices({ services }: HotelDetailServicesProps) {
             label={service.title}
             onClick={() => console.log(`Service clicked: ${service.title}`)}
           />
-        );
+        )
       })}
     </div>
-  );
+  )
 }

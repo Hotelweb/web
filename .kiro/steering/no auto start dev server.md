@@ -9,6 +9,7 @@ inclusion: always
 ## Prohibited Commands
 
 Do not auto-execute these development server commands:
+
 - `pnpm dev`, `yarn dev`, `npm start`, `bun dev`
 - Framework-specific: `next dev`, `vite`, `ng serve`, `vue-cli-service serve`
 - Static servers: `serve`, `http-server`, `python -m http.server`
@@ -24,6 +25,7 @@ Do not auto-execute these development server commands:
 ## Response Pattern
 
 When development server startup is needed:
+
 ```
 To start the development server, run: `pnpm dev`
 ```

@@ -67,5 +67,5 @@ export function QRCode() {
         <rect x="70" y="90" width="5" height="5" fill="#1F2937" />
       </svg>
     </div>
-  );
+  )
 }

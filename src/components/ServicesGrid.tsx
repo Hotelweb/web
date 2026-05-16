@@ -1,4 +1,4 @@
-import { ServiceItem } from "./ServiceItem";
+import { ServiceItem } from './ServiceItem'
 import {
   TranslateIcon,
   FrontOfficeIcon,
@@ -18,36 +18,36 @@ import {
   HotelInfoIcon,
   HotelRulesIcon,
   PetsIcon,
-} from "./icons/ServiceIcons";
+} from './icons/ServiceIcons'
 
 interface ServicesGridProps {
-  onServiceClick?: (service: string) => void;
+  onServiceClick?: (service: string) => void
 }
 
 export function ServicesGrid({ onServiceClick }: ServicesGridProps) {
   const services = [
-    { icon: <TranslateIcon />, label: "How to Translate" },
-    { icon: <FrontOfficeIcon />, label: "Front Office Services" },
-    { icon: <RoomServiceIcon />, label: "Room Service" },
-    { icon: <RestaurantIcon />, label: "Restaurant" },
-    { icon: <InRoomDiningIcon />, label: "In-room Dinning" },
-    { icon: <SpecialOfferIcon />, label: "Special Offer (Membership)" },
-    { icon: <FacilitiesIcon />, label: "Facilities" },
-    { icon: <LaundryIcon />, label: "Laundry Service" },
-    { icon: <SpaIcon />, label: "Spa" },
-    { icon: <MotorbikeIcon />, label: "Motorbike Rental" },
+    { icon: <TranslateIcon />, label: 'How to Translate' },
+    { icon: <FrontOfficeIcon />, label: 'Front Office Services' },
+    { icon: <RoomServiceIcon />, label: 'Room Service' },
+    { icon: <RestaurantIcon />, label: 'Restaurant' },
+    { icon: <InRoomDiningIcon />, label: 'In-room Dinning' },
+    { icon: <SpecialOfferIcon />, label: 'Special Offer (Membership)' },
+    { icon: <FacilitiesIcon />, label: 'Facilities' },
+    { icon: <LaundryIcon />, label: 'Laundry Service' },
+    { icon: <SpaIcon />, label: 'Spa' },
+    { icon: <MotorbikeIcon />, label: 'Motorbike Rental' },
     {
       icon: <AirportShuttleIcon />,
-      label: "Airport shuttle, intercity transportation",
+      label: 'Airport shuttle, intercity transportation',
     },
-    { icon: <TourTicketIcon />, label: "Tour/Ticket" },
-    { icon: <CustomerFeedbackIcon />, label: "Customer Feedback" },
-    { icon: <InRoomGuideIcon />, label: "In-room facilities user guide" },
-    { icon: <SocialMediaIcon />, label: "Social Media" },
-    { icon: <HotelInfoIcon />, label: "Hotel information" },
-    { icon: <HotelRulesIcon />, label: "Hotel Rules" },
-    { icon: <PetsIcon />, label: "Pets" },
-  ];
+    { icon: <TourTicketIcon />, label: 'Tour/Ticket' },
+    { icon: <CustomerFeedbackIcon />, label: 'Customer Feedback' },
+    { icon: <InRoomGuideIcon />, label: 'In-room facilities user guide' },
+    { icon: <SocialMediaIcon />, label: 'Social Media' },
+    { icon: <HotelInfoIcon />, label: 'Hotel information' },
+    { icon: <HotelRulesIcon />, label: 'Hotel Rules' },
+    { icon: <PetsIcon />, label: 'Pets' },
+  ]
 
   return (
     <div
@@ -64,5 +64,5 @@ export function ServicesGrid({ onServiceClick }: ServicesGridProps) {
         />
       ))}
     </div>
-  );
+  )
 }
