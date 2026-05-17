@@ -312,6 +312,12 @@ export const PlusIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
   </svg>
 )
 
+export const MinusIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
+  <svg viewBox="0 0 24 24" className={className} {...baseProps}>
+    <path d="M5 12h14" />
+  </svg>
+)
+
 export const HotelIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
   <svg viewBox="0 0 24 24" className={className} {...baseProps}>
     <path d="M10 22v-6.57" />

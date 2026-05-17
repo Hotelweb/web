@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import { getHotelBySlug, getHotelServices } from '../api'
 import type { Hotel, HotelService } from '../api'
@@ -10,8 +10,11 @@ import { HotelDetailServices } from '../components/HotelDetailServices'
 import { TopHeader } from '../components/TopHeader'
 import heroImage from '../assets/hero.png'
 
+const IN_ROOM_DINING_SERVICE_ID = -2501
+
 export function HotelDetailPage() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const [hotel, setHotel] = useState<Hotel | null>(null)
   const [services, setServices] = useState<HotelService[]>([])
   const [loading, setLoading] = useState(true)
@@ -81,6 +84,40 @@ export function HotelDetailPage() {
   }
 
   const hotelPageUrl = `${window.location.origin}/hotel/${hotel.slug}`
+  const diningTitle = lang === 'VN' ? 'Ăn tại phòng' : 'In-room Dinning'
+  const diningService: HotelService = {
+    id: IN_ROOM_DINING_SERVICE_ID,
+    icon_url: null,
+    image_url: null,
+    sort_order: 0,
+    title: diningTitle,
+    description:
+      lang === 'VN' ? 'Menu món ăn và form order tại phòng' : 'Food menu and room order form',
+    language: lang === 'VN' ? 'vi' : 'en',
+    translations: [],
+  }
+  const isDiningService = (service: HotelService) => {
+    const normalized = service.title.toLowerCase()
+    return (
+      service.id === IN_ROOM_DINING_SERVICE_ID ||
+      normalized.includes('in-room dining') ||
+      normalized.includes('in-room dinning') ||
+      normalized.includes('ăn tại phòng')
+    )
+  }
+  const displayServices = [
+    diningService,
+    ...services.filter((service) => !isDiningService(service)),
+  ].sort((a, b) => a.sort_order - b.sort_order)
+
+  const handleServiceClick = (service: HotelService) => {
+    if (isDiningService(service)) {
+      navigate(`/hotel/${hotel.slug}/in-room-dining`)
+      return
+    }
+
+    console.log('Service clicked:', service.title)
+  }
 
   return (
     <div className="min-h-screen bg-background-warm">
@@ -122,11 +159,8 @@ export function HotelDetailPage() {
           <HotelCard name={hotel.name} address={hotel.address || ''} onClick={() => {}} />
 
           {/* Services */}
-          {services.length > 0 ? (
-            <HotelDetailServices
-              services={services}
-              onServiceClick={(s) => console.log('Service clicked:', s.title)}
-            />
+          {displayServices.length > 0 ? (
+            <HotelDetailServices services={displayServices} onServiceClick={handleServiceClick} />
           ) : (
             <div className="text-center py-10">
               <p className="text-text-light text-sm">No services available</p>
