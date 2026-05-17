@@ -47,6 +47,7 @@ export interface Hotel {
   description: string | null
   logo_url: string | null
   banner_url: string | null
+  gallery: string[]
   qr_token: string
   is_active: boolean
   created_at: string
@@ -108,6 +109,38 @@ export interface HotelService {
   description: string
   language: string
   translations: ServiceTranslation[]
+}
+
+export interface AdminHotelService extends HotelService {
+  hotel_id: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export type ServiceLanguage = 'vi' | 'en' | 'ja' | 'zh' | 'ko' | 'th'
+
+export interface ServiceTranslationInput {
+  language: ServiceLanguage
+  title: string
+  description?: string
+}
+
+export interface CreateServiceInput {
+  hotel_id: number
+  icon_url?: string
+  image_url?: string
+  sort_order?: number
+  is_active?: boolean
+  translations: ServiceTranslationInput[]
+}
+
+export interface UpdateServiceInput {
+  icon_url?: string
+  image_url?: string
+  sort_order?: number
+  is_active?: boolean
+  translations?: ServiceTranslationInput[]
 }
 
 // ---- Chat types ----------------------------------------------------------
@@ -189,6 +222,72 @@ export const createHotel = (data: CreateHotelInput) =>
 
 export const deleteHotel = (id: number) => fetchApi<void>(`/hotels/${id}`, { method: 'DELETE' })
 
+export interface UpdateHotelInput {
+  name?: string
+  phone?: string
+  email?: string
+  address?: string
+  description?: string
+  logo_url?: string
+  banner_url?: string
+  gallery?: string[]
+  is_active?: boolean
+}
+
+export const updateHotel = (id: number, data: UpdateHotelInput) =>
+  fetchApi<Hotel>(`/hotels/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+
+// ---- Image uploads (Cloudinary via server proxy) -----------------------
+
+export interface UploadResult {
+  url: string
+  public_id: string
+  width?: number
+  height?: number
+  format?: string
+  bytes?: number
+}
+
+export type UploadFolder = 'hotels' | 'services' | 'misc'
+
+export const uploadImage = async (
+  file: File,
+  folder: UploadFolder = 'misc',
+): Promise<UploadResult> => {
+  const token = getToken()
+  const headers: Record<string, string> = {}
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const body = new FormData()
+  body.append('file', file)
+
+  const res = await fetch(`${API_BASE}/uploads/image?folder=${folder}`, {
+    method: 'POST',
+    headers,
+    body,
+  })
+
+  if (res.status === 401 && token) {
+    clearAuth()
+  }
+  if (!res.ok) {
+    let detail = ''
+    try {
+      const payload = (await res.json()) as { message?: string | string[] }
+      detail = Array.isArray(payload?.message)
+        ? payload.message.join('; ')
+        : (payload?.message ?? '')
+    } catch {
+      // ignore parse errors
+    }
+    throw new Error(detail || `Upload failed: ${res.status} ${res.statusText}`)
+  }
+  return res.json() as Promise<UploadResult>
+}
+
 // Hotel users (staff)
 export const getHotelUsers = (hotelId: number) =>
   fetchApi<HotelUser[]>(`/hotel-users?hotel_id=${hotelId}`)
@@ -196,6 +295,26 @@ export const getHotelUsers = (hotelId: number) =>
 // Services APIs
 export const getHotelServices = (hotelId: number, lang?: string) =>
   fetchApi<HotelService[]>(`/services/hotel/${hotelId}${lang ? `?lang=${lang}` : ''}`)
+
+export const getHotelServicesAdmin = (hotelId: number) =>
+  fetchApi<AdminHotelService[]>(`/services/admin/hotel/${hotelId}`)
+
+export const getService = (id: number, lang?: string) =>
+  fetchApi<HotelService>(`/services/${id}${lang ? `?lang=${lang}` : ''}`)
+
+export const createService = (data: CreateServiceInput) =>
+  fetchApi<AdminHotelService>('/services', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+export const updateService = (id: number, data: UpdateServiceInput) =>
+  fetchApi<AdminHotelService>(`/services/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+
+export const deleteService = (id: number) => fetchApi<void>(`/services/${id}`, { method: 'DELETE' })
 
 // Chat APIs
 export const createChatSession = (data: CreateSessionInput) =>

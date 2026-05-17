@@ -7,6 +7,8 @@ import { HotelCard } from '../components/HotelCard'
 import { ChatButton } from '../components/ChatButton'
 import { ChatWindow } from '../components/ChatWindow'
 import { HotelDetailServices } from '../components/HotelDetailServices'
+import { HotelGallery } from '../components/HotelGallery'
+import { ServiceDetailModal } from '../components/ServiceDetailModal'
 import { TopHeader } from '../components/TopHeader'
 import heroImage from '../assets/hero.png'
 
@@ -18,6 +20,7 @@ export function HotelDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [showChat, setShowChat] = useState(false)
   const [lang, setLang] = useState<'VN' | 'EN'>('VN')
+  const [activeService, setActiveService] = useState<HotelService | null>(null)
 
   useEffect(() => {
     if (!slug) return
@@ -121,12 +124,32 @@ export function HotelDetailPage() {
           {/* Hotel Info Card */}
           <HotelCard name={hotel.name} address={hotel.address || ''} onClick={() => {}} />
 
+          {/* Hotel description */}
+          {hotel.description ? (
+            <section
+              aria-label={lang === 'VN' ? 'Giới thiệu' : 'About'}
+              className="glass-card rounded-3xl p-5 sm:p-6"
+            >
+              <h3 className="text-lg sm:text-xl font-bold text-text mb-2">
+                {lang === 'VN' ? 'Giới thiệu' : 'About this hotel'}
+              </h3>
+              <p className="text-[14px] sm:text-[15px] text-text-muted leading-relaxed whitespace-pre-line">
+                {hotel.description}
+              </p>
+            </section>
+          ) : null}
+
+          {/* Intro gallery — Cloudinary-hosted photos curated by the admin */}
+          {hotel.gallery && hotel.gallery.length > 0 ? (
+            <HotelGallery
+              images={hotel.gallery}
+              heading={lang === 'VN' ? 'Hình ảnh giới thiệu' : 'Gallery'}
+            />
+          ) : null}
+
           {/* Services */}
           {services.length > 0 ? (
-            <HotelDetailServices
-              services={services}
-              onServiceClick={(s) => console.log('Service clicked:', s.title)}
-            />
+            <HotelDetailServices services={services} onServiceClick={(s) => setActiveService(s)} />
           ) : (
             <div className="text-center py-10">
               <p className="text-text-light text-sm">No services available</p>
@@ -142,6 +165,14 @@ export function HotelDetailPage() {
       {showChat ? (
         <ChatWindow hotelId={hotel.id} hotelName={hotel.name} onClose={() => setShowChat(false)} />
       ) : null}
+
+      {/* Service detail modal — guests tap a service tile to read its markdown body */}
+      <ServiceDetailModal
+        open={activeService !== null}
+        service={activeService}
+        language={lang === 'VN' ? 'vi' : 'en'}
+        onClose={() => setActiveService(null)}
+      />
     </div>
   )
 }

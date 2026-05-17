@@ -4,6 +4,7 @@ import { HotelDetailPage } from './pages/HotelDetailPage'
 import { AdminChatPage } from './pages/AdminChatPage'
 import { RootAdminPage } from './pages/RootAdminPage'
 import { LoginPage } from './pages/LoginPage'
+import { HotelServicesAdminPage } from './pages/HotelServicesAdminPage'
 import { RequireAuth } from './components/RequireAuth'
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           }
         />
         <Route path="/admin/:hotelId/chat" element={<AdminChatRoute />} />
+        <Route path="/admin/:hotelId/services" element={<HotelServicesAdminRoute />} />
       </Routes>
     </BrowserRouter>
   )
@@ -38,6 +40,21 @@ function AdminChatRoute() {
   return (
     <RequireAuth scopes={['system', 'hotel']} hotelId={parsed}>
       <AdminChatPage />
+    </RequireAuth>
+  )
+}
+
+/**
+ * Same pattern as AdminChatRoute — read the hotel id from the URL and gate
+ * access. System admins manage any hotel's services; hotel admins are pinned
+ * to their own hotel.
+ */
+function HotelServicesAdminRoute() {
+  const { hotelId } = useParams<{ hotelId: string }>()
+  const parsed = hotelId ? Number(hotelId) : undefined
+  return (
+    <RequireAuth scopes={['system', 'hotel']} hotelId={parsed}>
+      <HotelServicesAdminPage />
     </RequireAuth>
   )
 }

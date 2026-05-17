@@ -3,13 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { deleteHotel, getHotels, getHotelUsers } from '../api'
 import type { CreateHotelResponse, Hotel, HotelUser } from '../api'
 import { AddHotelModal } from '../components/AddHotelModal'
+import { EditHotelModal } from '../components/EditHotelModal'
 import { UserMenu } from '../components/UserMenu'
 import {
   ChatIcon,
   CloseIcon,
+  EditIcon,
   HotelIcon,
   PlusIcon,
   SearchIcon,
+  ServicesIcon,
   UserCircleIcon,
 } from '../components/icons/ServiceIcons'
 
@@ -28,6 +31,7 @@ export function RootAdminPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingHotel, setEditingHotel] = useState<Hotel | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [newToast, setNewToast] = useState<NewHotelToast | null>(null)
@@ -213,8 +217,10 @@ export function RootAdminPage() {
                   hotel={hotel}
                   users={usersByHotel[hotel.id] ?? []}
                   deleting={deletingId === hotel.id}
+                  onEdit={() => setEditingHotel(hotel)}
                   onOpenPublic={() => navigate(`/hotel/${hotel.slug}`)}
                   onOpenDashboard={() => navigate(`/admin/${hotel.id}/chat`)}
+                  onOpenServices={() => navigate(`/admin/${hotel.id}/services`)}
                   onOpenUserDashboard={() => navigate(`/admin/${hotel.id}/chat`)}
                   onDelete={() => handleDelete(hotel)}
                 />
@@ -231,6 +237,17 @@ export function RootAdminPage() {
         onCreated={handleCreated}
       />
 
+      {/* Edit hotel modal — handles branding + intro gallery */}
+      <EditHotelModal
+        open={editingHotel !== null}
+        hotel={editingHotel}
+        onClose={() => setEditingHotel(null)}
+        onSaved={(saved) => {
+          setHotels((prev) => prev.map((h) => (h.id === saved.id ? saved : h)))
+          setEditingHotel(null)
+        }}
+      />
+
       {/* Newly created hotel toast (shows manager credentials) */}
       {newToast ? <NewHotelToastCard toast={newToast} onClose={() => setNewToast(null)} /> : null}
     </div>
@@ -245,8 +262,10 @@ interface HotelAdminCardProps {
   hotel: Hotel
   users: HotelUser[]
   deleting: boolean
+  onEdit: () => void
   onOpenPublic: () => void
   onOpenDashboard: () => void
+  onOpenServices: () => void
   onOpenUserDashboard: (user: HotelUser) => void
   onDelete: () => void
 }
@@ -255,8 +274,10 @@ function HotelAdminCard({
   hotel,
   users,
   deleting,
+  onEdit,
   onOpenPublic,
   onOpenDashboard,
+  onOpenServices,
   onOpenUserDashboard,
   onDelete,
 }: HotelAdminCardProps) {
@@ -305,6 +326,20 @@ function HotelAdminCard({
         >
           <ChatIcon className="w-4 h-4" />
           Mở dashboard
+        </button>
+        <button
+          onClick={onOpenServices}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12.5px] font-medium text-text bg-white border border-border hover:border-primary/40 hover:bg-emerald-50/50 cursor-pointer transition-all"
+        >
+          <ServicesIcon className="w-4 h-4" />
+          Quản lý dịch vụ
+        </button>
+        <button
+          onClick={onEdit}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[12.5px] font-medium text-text bg-white border border-border hover:border-primary/40 hover:bg-emerald-50/50 cursor-pointer transition-all"
+        >
+          <EditIcon className="w-4 h-4" />
+          Chỉnh sửa
         </button>
         <button
           onClick={onOpenPublic}

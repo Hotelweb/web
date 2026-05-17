@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { getChatMessages, getHotel, getHotelSessions, markSessionRead } from '../api'
 import type { ChatMessage, ChatSession, ChatSessionStatus, Hotel } from '../api'
 import { useChatSocket } from '../hooks/useChatSocket'
@@ -21,6 +21,7 @@ import {
   PlusIcon,
   SearchIcon,
   SendIcon,
+  ServicesIcon,
   SmileIcon,
   TranslateBubbleIcon,
   VideoIcon,
@@ -49,6 +50,7 @@ const FILTERS: { key: FilterKey; label: string; statuses?: ChatSessionStatus[] }
 export function AdminChatPage() {
   const { hotelId: hotelIdParam } = useParams<{ hotelId: string }>()
   const hotelId = Number(hotelIdParam)
+  const navigate = useNavigate()
 
   const [hotel, setHotel] = useState<Hotel | null>(null)
   const [sessions, setSessions] = useState<ChatSession[]>([])
@@ -484,7 +486,15 @@ export function AdminChatPage() {
       <aside className="w-[320px] bg-white border-r border-border-light flex flex-col flex-shrink-0">
         {/* Brand + actions */}
         <div className="px-4 pt-4 pb-3 border-b border-border-light flex flex-col gap-3">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-1">
+            <button
+              onClick={() => navigate(`/admin/${hotelId}/services`)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[12px] font-medium text-text-muted bg-white border border-border-light hover:bg-emerald-50/60 hover:text-primary cursor-pointer transition-colors"
+              title="Quản lý dịch vụ khách sạn"
+            >
+              <ServicesIcon className="w-3.5 h-3.5" />
+              Dịch vụ
+            </button>
             <UserMenu size="sm" />
           </div>
           <div className="flex items-center justify-between">
