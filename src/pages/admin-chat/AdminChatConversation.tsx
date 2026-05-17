@@ -88,7 +88,9 @@ export function AdminChatConversation({
                 {session.room_number ? (
                   <>
                     <span className="text-text-lighter text-xs">·</span>
-                    <span className="text-[11.5px] text-text-light">Phòng {session.room_number}</span>
+                    <span className="text-[11.5px] text-text-light">
+                      Phòng {session.room_number}
+                    </span>
                   </>
                 ) : null}
               </div>

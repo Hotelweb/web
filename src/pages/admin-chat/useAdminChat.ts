@@ -156,7 +156,12 @@ export function useAdminChat(hotelId: number) {
     [activeSession?.id],
   )
 
-  const { connection, sendMessage: socketSend, emitTyping, markRead } = useChatSocket({
+  const {
+    connection,
+    sendMessage: socketSend,
+    emitTyping,
+    markRead,
+  } = useChatSocket({
     sessionId: activeSession?.id ?? null,
     hotelId,
     role: 'staff',

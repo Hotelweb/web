@@ -100,9 +100,7 @@ export function AdminChatSidebar({
                   : 'text-text-muted hover:bg-gray-100'
               }`}
               aria-label="Thông báo trình duyệt"
-              title={
-                notifEnabled === 'granted' ? 'Thông báo đã bật' : 'Bật thông báo trình duyệt'
-              }
+              title={notifEnabled === 'granted' ? 'Thông báo đã bật' : 'Bật thông báo trình duyệt'}
             >
               {notifEnabled === 'granted' ? (
                 <BellIcon className="w-4 h-4" />
