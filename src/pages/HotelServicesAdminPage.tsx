@@ -162,10 +162,16 @@ export function HotelServicesAdminPage() {
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <UserMenu size="sm" />
+            <button
+              onClick={() => navigate(`/admin/${hotelId}/chat`)}
+              className="px-3.5 py-2 rounded-xl text-[13px] font-medium text-text-muted bg-green-300 border border-green-200 hover:bg-green-100 cursor-pointer transition-colors"
+            >
+              Tin nhắn
+            </button>
             {hotel ? (
               <button
                 onClick={() => navigate(`/hotel/${hotel.slug}`)}
-                className="px-3.5 py-2 rounded-xl text-[13px] font-medium text-text-muted bg-white border border-border hover:bg-gray-50 cursor-pointer transition-colors"
+                className="px-3.5 py-2 rounded-xl text-[13px] font-medium text-text-muted bg-green-300 border border-green-200 hover:bg-green-100 cursor-pointer transition-colors"
               >
                 Xem trang khách
               </button>
