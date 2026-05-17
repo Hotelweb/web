@@ -1,13 +1,39 @@
+import { clearAuth, getToken } from '../lib/auth'
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  })
-  if (!res.ok) {
-    throw new Error(`API Error: ${res.status} ${res.statusText}`)
+  const token = getToken()
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string> | undefined),
   }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+  })
+
+  // A 401 on any authenticated call means the token is gone or expired —
+  // clear local state so the next render redirects to /login.
+  if (res.status === 401 && token) {
+    clearAuth()
+  }
+
+  if (!res.ok) {
+    let detail = ''
+    try {
+      const body = await res.json()
+      const msg = (body as { message?: string | string[] })?.message
+      detail = Array.isArray(msg) ? msg.join('; ') : (msg ?? '')
+    } catch {
+      // ignore JSON parse errors
+    }
+    throw new Error(detail || `API Error: ${res.status} ${res.statusText}`)
+  }
+  // 204 No Content has no body
+  if (res.status === 204) return undefined as T
   return res.json()
 }
 
@@ -25,6 +51,44 @@ export interface Hotel {
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+// ---- Hotel admins (per-hotel manager accounts) -------------------------
+
+export interface HotelUser {
+  id: number
+  hotel_id: number
+  email: string
+  full_name: string
+  avatar_url: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateHotelInput {
+  name: string
+  phone?: string
+  email?: string
+  address?: string
+  description?: string
+  manager_email?: string
+  manager_password?: string
+  manager_name?: string
+}
+
+export interface CreateHotelResponse {
+  hotel: Hotel
+  qr_page_url: string
+  manager: {
+    id: number
+    hotel_id: number
+    email: string
+    full_name: string
+    is_active: boolean
+    created_at: string
+    default_password?: string
+  }
 }
 
 export interface ServiceTranslation {
@@ -117,6 +181,18 @@ export const getHotel = (id: number) => fetchApi<Hotel>(`/hotels/${id}`)
 export const getHotelBySlug = (slug: string) => fetchApi<Hotel>(`/hotels/slug/${slug}`)
 export const getHotelByQr = (qrToken: string) => fetchApi<Hotel>(`/hotels/qr/${qrToken}`)
 
+export const createHotel = (data: CreateHotelInput) =>
+  fetchApi<CreateHotelResponse>('/hotels', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+export const deleteHotel = (id: number) => fetchApi<void>(`/hotels/${id}`, { method: 'DELETE' })
+
+// Hotel users (staff)
+export const getHotelUsers = (hotelId: number) =>
+  fetchApi<HotelUser[]>(`/hotel-users?hotel_id=${hotelId}`)
+
 // Services APIs
 export const getHotelServices = (hotelId: number, lang?: string) =>
   fetchApi<HotelService[]>(`/services/hotel/${hotelId}${lang ? `?lang=${lang}` : ''}`)
@@ -191,5 +267,33 @@ export const translateText = (text: string, source: string, target: string) =>
     method: 'POST',
     body: JSON.stringify({ text, source, target }),
   })
+
+// ---- Auth ----------------------------------------------------------------
+
+export interface LoginInput {
+  email: string
+  password: string
+  scope?: 'system' | 'hotel'
+}
+
+export interface LoginResponse {
+  access_token: string
+  user: {
+    id: number
+    email: string
+    full_name: string
+    scope: 'system' | 'hotel'
+    hotel_id?: number
+    is_active: boolean
+  }
+}
+
+export const login = (data: LoginInput) =>
+  fetchApi<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+export const getMe = () => fetchApi<LoginResponse['user']>('/auth/me')
 
 export { API_BASE }

@@ -4,6 +4,7 @@ import { getChatMessages, getHotel, getHotelSessions, markSessionRead } from '..
 import type { ChatMessage, ChatSession, ChatSessionStatus, Hotel } from '../api'
 import { useChatSocket } from '../hooks/useChatSocket'
 import { getLanguage } from '../lib/languages'
+import { UserMenu } from '../components/UserMenu'
 import { CannedResponses } from '../components/chat/CannedResponses'
 import { ConnectionBanner, ConnectionDot } from '../components/chat/ConnectionBanner'
 import { GuestInfoPanel } from '../components/chat/GuestInfoPanel'
@@ -483,6 +484,9 @@ export function AdminChatPage() {
       <aside className="w-[320px] bg-white border-r border-border-light flex flex-col flex-shrink-0">
         {/* Brand + actions */}
         <div className="px-4 pt-4 pb-3 border-b border-border-light flex flex-col gap-3">
+          <div className="flex items-center justify-end">
+            <UserMenu size="sm" />
+          </div>
           <div className="flex items-center justify-between">
             <div className="min-w-0">
               <h1 className="text-[18px] font-bold text-text leading-tight">Hộp thư</h1>

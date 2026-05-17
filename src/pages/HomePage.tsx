@@ -8,9 +8,11 @@ import { ServicesGrid } from '../components/ServicesGrid'
 import { ChatButton } from '../components/ChatButton'
 import { ChatWindow } from '../components/ChatWindow'
 import { TopHeader } from '../components/TopHeader'
+import { useAuth } from '../hooks/useAuth'
 
 export function HomePage() {
   const navigate = useNavigate()
+  const auth = useAuth()
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [, setLoading] = useState(true)
   const [lang, setLang] = useState<'VN' | 'EN'>('VN')
@@ -60,6 +62,12 @@ export function HomePage() {
 
           {/* Hotel List or Default Card */}
           <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-[15px] font-semibold text-text">
+                {lang === 'VN' ? 'Cơ sở khách sạn' : 'Hotels'}
+              </h2>
+              <AdminLink lang={lang} auth={auth} onNavigate={navigate} />
+            </div>
             {hotels.length > 0 ? (
               <div className="space-y-3">
                 {hotels.map((hotel) => (
@@ -98,4 +106,58 @@ export function HomePage() {
       ) : null}
     </div>
   )
+}
+
+/**
+ * Inline link in the hotels section that points to the right destination
+ * for the current viewer:
+ *
+ *  - Logged-out → /login
+ *  - System admin → /admin (root dashboard)
+ *  - Hotel user → /admin/{their-hotel}/chat (their inbox)
+ */
+function AdminLink({
+  lang,
+  auth,
+  onNavigate,
+}: {
+  lang: 'VN' | 'EN'
+  auth: ReturnType<typeof useAuth>
+  onNavigate: (path: string) => void
+}) {
+  if (!auth) {
+    return (
+      <button
+        onClick={() => onNavigate('/login')}
+        className="text-[12.5px] font-medium text-primary hover:underline cursor-pointer"
+      >
+        {lang === 'VN' ? 'Đăng nhập quản trị →' : 'Admin login →'}
+      </button>
+    )
+  }
+
+  if (auth.user.scope === 'system') {
+    return (
+      <button
+        onClick={() => onNavigate('/admin')}
+        className="text-[12.5px] font-medium text-primary hover:underline cursor-pointer"
+      >
+        {lang === 'VN' ? 'Quản trị hệ thống →' : 'System admin →'}
+      </button>
+    )
+  }
+
+  // Hotel-scoped user — link straight to their own dashboard.
+  if (auth.user.hotel_id) {
+    return (
+      <button
+        onClick={() => onNavigate(`/admin/${auth.user.hotel_id}/chat`)}
+        className="text-[12.5px] font-medium text-primary hover:underline cursor-pointer"
+      >
+        {lang === 'VN' ? 'Vào dashboard →' : 'Open dashboard →'}
+      </button>
+    )
+  }
+
+  return null
 }
