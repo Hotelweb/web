@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import { getHotelBySlug, getHotelServices } from '../api'
 import type { Hotel, HotelService } from '../api'
@@ -13,6 +13,7 @@ import { TopHeader } from '../components/TopHeader'
 import heroImage from '../assets/hero.png'
 
 export function HotelDetailPage() {
+  const navigate = useNavigate()
   const { slug } = useParams<{ slug: string }>()
   const [hotel, setHotel] = useState<Hotel | null>(null)
   const [services, setServices] = useState<HotelService[]>([])
@@ -149,7 +150,16 @@ export function HotelDetailPage() {
 
           {/* Services */}
           {services.length > 0 ? (
-            <HotelDetailServices services={services} onServiceClick={(s) => setActiveService(s)} />
+            <HotelDetailServices
+              services={services}
+              onServiceClick={(s) => {
+                if (s.service_type === 'food_order') {
+                  navigate(`/hotel/${hotel.slug}/order/${s.id}`)
+                } else {
+                  setActiveService(s)
+                }
+              }}
+            />
           ) : (
             <div className="text-center py-10">
               <p className="text-text-light text-sm">No services available</p>

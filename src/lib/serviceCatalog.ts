@@ -113,6 +113,8 @@ export interface ServicePreset {
   label: string
   /** One-line summary explaining what the preset is for. */
   hint: string
+  /** When `food_order`, guests open the menu ordering page instead of a modal. */
+  serviceType?: 'content' | 'food_order'
   /** Pre-filled translations. Vietnamese + English are always included so
    * the customer view falls back gracefully. */
   translations: ServicePresetTranslation[]
@@ -126,6 +128,27 @@ export interface ServicePreset {
  * a phone.
  */
 export const SERVICE_PRESETS: ServicePreset[] = [
+  {
+    id: 'food-order',
+    iconKey: 'in-room-dining',
+    label: 'Đặt đồ ăn & nước uống',
+    hint: 'Menu online — khách chọn món, admin nhận đơn',
+    serviceType: 'food_order',
+    translations: [
+      {
+        language: 'vi',
+        title: 'Đặt đồ ăn & nước uống',
+        description:
+          '## Đặt món tận phòng\n\nChọn món từ menu, điền số phòng và gửi đơn. Nhân viên sẽ xác nhận và giao đến phòng của quý khách.\n\n> Thời gian phục vụ: **6:00 – 22:30** hàng ngày',
+      },
+      {
+        language: 'en',
+        title: 'Food & Drinks Order',
+        description:
+          '## In-room dining\n\nBrowse the menu, enter your room number, and submit your order. Our team will confirm and deliver to your room.\n\n> Service hours: **6:00 AM – 10:30 PM** daily',
+      },
+    ],
+  },
   {
     id: 'front-office',
     iconKey: 'front-office',

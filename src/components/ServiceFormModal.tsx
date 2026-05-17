@@ -6,6 +6,7 @@ import {
   type CreateServiceInput,
   type ServiceLanguage,
   type ServiceTranslationInput,
+  type ServiceType,
   type UpdateServiceInput,
 } from '../api'
 import { LANGUAGES } from '../lib/languages'
@@ -60,6 +61,7 @@ export function ServiceFormModal({
   const [imageUrl, setImageUrl] = useState('')
   const [sortOrder, setSortOrder] = useState<number>(0)
   const [isActive, setIsActive] = useState(true)
+  const [serviceType, setServiceType] = useState<ServiceType>('content')
   const [translations, setTranslations] = useState<TranslationDraft[]>([])
   const [activeLang, setActiveLang] = useState<ServiceLanguage>(DEFAULT_LANG)
   const [submitting, setSubmitting] = useState(false)
@@ -83,6 +85,7 @@ export function ServiceFormModal({
         setImageUrl(service.image_url ?? '')
         setSortOrder(service.sort_order ?? 0)
         setIsActive(service.is_active ?? true)
+        setServiceType(service.service_type ?? 'content')
         const drafts: TranslationDraft[] = service.translations.length
           ? service.translations.map((t) => ({
               language: t.language as ServiceLanguage,
@@ -97,6 +100,7 @@ export function ServiceFormModal({
         setImageUrl('')
         setSortOrder(0)
         setIsActive(true)
+        setServiceType('content')
         setTranslations([{ language: DEFAULT_LANG, title: '', description: '' }])
         setActiveLang(DEFAULT_LANG)
       }
@@ -179,6 +183,7 @@ export function ServiceFormModal({
     // freshly populated content immediately.
     const firstPresetLang = preset.translations[0]?.language
     if (firstPresetLang) setActiveLang(firstPresetLang)
+    if (preset.serviceType) setServiceType(preset.serviceType)
   }
 
   // -------------------------------------------------------------------------
@@ -222,6 +227,7 @@ export function ServiceFormModal({
           image_url: imageUrl.trim() || undefined,
           sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
           is_active: isActive,
+          service_type: serviceType,
           translations: payloadTranslations,
         }
         saved = await updateService(service.id, updateBody)
@@ -232,6 +238,7 @@ export function ServiceFormModal({
           image_url: imageUrl.trim() || undefined,
           sort_order: Number.isFinite(sortOrder) ? sortOrder : 0,
           is_active: isActive,
+          service_type: serviceType,
           translations: payloadTranslations,
         }
         saved = await createService(createBody)
@@ -337,7 +344,17 @@ export function ServiceFormModal({
                   min={0}
                 />
               </Field>
-              <label className="flex items-end gap-2 pb-1.5 cursor-pointer select-none">
+              <Field label="Loại dịch vụ">
+                <select
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value as ServiceType)}
+                  className={inputClass}
+                >
+                  <option value="content">Nội dung (modal mô tả)</option>
+                  <option value="food_order">Đặt đồ ăn & nước uống</option>
+                </select>
+              </Field>
+              <label className="flex items-end gap-2 pb-1.5 cursor-pointer select-none sm:col-span-2">
                 <input
                   type="checkbox"
                   checked={isActive}

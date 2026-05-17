@@ -488,6 +488,13 @@ export function AdminChatPage() {
         <div className="px-4 pt-4 pb-3 border-b border-border-light flex flex-col gap-3">
           <div className="flex items-center justify-end gap-1">
             <button
+              onClick={() => navigate(`/admin/${hotelId}/food-order`)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[12px] font-medium text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100 cursor-pointer transition-colors"
+              title="Quản lý đặt đồ ăn & nước uống"
+            >
+              Đặt món
+            </button>
+            <button
               onClick={() => navigate(`/admin/${hotelId}/services`)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[12px] font-medium text-text-muted bg-white border border-border-light hover:bg-emerald-50/60 hover:text-primary cursor-pointer transition-colors"
               title="Quản lý dịch vụ khách sạn"

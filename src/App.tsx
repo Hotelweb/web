@@ -5,6 +5,8 @@ import { AdminChatPage } from './pages/AdminChatPage'
 import { RootAdminPage } from './pages/RootAdminPage'
 import { LoginPage } from './pages/LoginPage'
 import { HotelServicesAdminPage } from './pages/HotelServicesAdminPage'
+import { FoodOrderPage } from './pages/FoodOrderPage'
+import { FoodOrderAdminPage } from './pages/FoodOrderAdminPage'
 import { RequireAuth } from './components/RequireAuth'
 
 function App() {
@@ -13,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/hotel/:slug" element={<HotelDetailPage />} />
+        <Route path="/hotel/:slug/order/:serviceId" element={<FoodOrderPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/admin"
@@ -24,6 +27,7 @@ function App() {
         />
         <Route path="/admin/:hotelId/chat" element={<AdminChatRoute />} />
         <Route path="/admin/:hotelId/services" element={<HotelServicesAdminRoute />} />
+        <Route path="/admin/:hotelId/food-order" element={<FoodOrderAdminRoute />} />
       </Routes>
     </BrowserRouter>
   )
@@ -55,6 +59,16 @@ function HotelServicesAdminRoute() {
   return (
     <RequireAuth scopes={['system', 'hotel']} hotelId={parsed}>
       <HotelServicesAdminPage />
+    </RequireAuth>
+  )
+}
+
+function FoodOrderAdminRoute() {
+  const { hotelId } = useParams<{ hotelId: string }>()
+  const parsed = hotelId ? Number(hotelId) : undefined
+  return (
+    <RequireAuth scopes={['system', 'hotel']} hotelId={parsed}>
+      <FoodOrderAdminPage />
     </RequireAuth>
   )
 }

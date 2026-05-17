@@ -171,6 +171,12 @@ export function HotelServicesAdminPage() {
               </button>
             ) : null}
             <button
+              onClick={() => navigate(`/admin/${hotelId}/food-order`)}
+              className="px-3.5 py-2 rounded-xl text-[13px] font-medium text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100 cursor-pointer transition-colors"
+            >
+              Quản lý đặt món
+            </button>
+            <button
               onClick={() => setModal({ kind: 'create' })}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13.5px] font-semibold text-white gradient-primary shadow-card hover:shadow-card-hover cursor-pointer transition-all"
             >
@@ -232,10 +238,12 @@ export function HotelServicesAdminPage() {
                 <ServiceAdminCard
                   key={service.id}
                   service={service}
+                  hotelId={hotelId}
                   deleting={deletingId === service.id}
                   onPreview={() => setModal({ kind: 'preview', service })}
                   onEdit={() => setModal({ kind: 'edit', service })}
                   onDelete={() => handleDelete(service)}
+                  onManageOrders={() => navigate(`/admin/${hotelId}/food-order`)}
                 />
               ))}
             </div>
@@ -279,10 +287,12 @@ function compareServices(a: AdminHotelService, b: AdminHotelService) {
 
 interface ServiceAdminCardProps {
   service: AdminHotelService
+  hotelId: number
   deleting: boolean
   onPreview: () => void
   onEdit: () => void
   onDelete: () => void
+  onManageOrders: () => void
 }
 
 function ServiceAdminCard({
@@ -291,6 +301,7 @@ function ServiceAdminCard({
   onPreview,
   onEdit,
   onDelete,
+  onManageOrders,
 }: ServiceAdminCardProps) {
   const languages = service.translations.map((t) => t.language).join(', ')
   const iconEntry = getIconEntry(service.icon_url)
@@ -340,22 +351,36 @@ function ServiceAdminCard({
         <p className="text-[12px] text-text-light line-clamp-2 min-h-[2em]">
           {service.description ? stripMarkdown(service.description) : 'Chưa có mô tả'}
         </p>
-        <div className="flex items-center gap-2 text-[11px] text-text-light">
+        <div className="flex items-center gap-2 text-[11px] text-text-light flex-wrap">
           <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-gray-100 font-mono uppercase">
             {languages || '—'}
           </span>
+          {service.service_type === 'food_order' ? (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-orange-50 text-orange-700 font-semibold">
+              Đặt món
+            </span>
+          ) : null}
         </div>
       </div>
 
       {/* Actions */}
-      <div className="px-3 py-2.5 border-t border-border-light flex items-center justify-between gap-1 flex-shrink-0 bg-gray-50/40">
-        <button
-          onClick={onPreview}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-medium text-text-muted hover:bg-white cursor-pointer transition-colors"
-        >
-          <EyeIcon className="w-3.5 h-3.5" />
-          Xem
-        </button>
+      <div className="px-3 py-2.5 border-t border-border-light flex items-center justify-between gap-1 flex-shrink-0 bg-gray-50/40 flex-wrap">
+        {service.service_type === 'food_order' ? (
+          <button
+            onClick={onManageOrders}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-medium text-orange-700 hover:bg-orange-50 cursor-pointer transition-colors"
+          >
+            Quản lý đơn
+          </button>
+        ) : (
+          <button
+            onClick={onPreview}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[12px] font-medium text-text-muted hover:bg-white cursor-pointer transition-colors"
+          >
+            <EyeIcon className="w-3.5 h-3.5" />
+            Xem
+          </button>
+        )}
         <div className="flex items-center gap-1">
           <button
             onClick={onEdit}

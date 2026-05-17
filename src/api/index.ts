@@ -100,11 +100,14 @@ export interface ServiceTranslation {
   description: string | null
 }
 
+export type ServiceType = 'content' | 'food_order'
+
 export interface HotelService {
   id: number
   icon_url: string | null
   image_url: string | null
   sort_order: number
+  service_type?: ServiceType
   title: string
   description: string
   language: string
@@ -132,6 +135,7 @@ export interface CreateServiceInput {
   image_url?: string
   sort_order?: number
   is_active?: boolean
+  service_type?: ServiceType
   translations: ServiceTranslationInput[]
 }
 
@@ -140,6 +144,7 @@ export interface UpdateServiceInput {
   image_url?: string
   sort_order?: number
   is_active?: boolean
+  service_type?: ServiceType
   translations?: ServiceTranslationInput[]
 }
 
@@ -251,7 +256,7 @@ export interface UploadResult {
   bytes?: number
 }
 
-export type UploadFolder = 'hotels' | 'services' | 'misc'
+export type UploadFolder = 'hotels' | 'services' | 'menu' | 'misc'
 
 export const uploadImage = async (
   file: File,
@@ -315,6 +320,148 @@ export const updateService = (id: number, data: UpdateServiceInput) =>
   })
 
 export const deleteService = (id: number) => fetchApi<void>(`/services/${id}`, { method: 'DELETE' })
+
+// ---- Food order ----------------------------------------------------------
+
+export type MenuCategory = 'food' | 'drink'
+export type FoodOrderStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED' | 'CANCELLED'
+
+export interface MenuItem {
+  id: number
+  hotel_id: number
+  category: MenuCategory
+  name: string
+  name_en: string | null
+  description: string | null
+  description_en: string | null
+  price: number
+  image_url: string | null
+  sort_order: number
+  is_available: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface FoodOrderLine {
+  id: number
+  menu_item_id: number | null
+  item_name: string
+  category: MenuCategory
+  unit_price: number
+  quantity: number
+  line_total: number
+}
+
+export interface FoodOrder {
+  id: number
+  hotel_id: number
+  service_id: number | null
+  room_number: string | null
+  customer_name: string | null
+  customer_phone: string | null
+  note: string | null
+  status: FoodOrderStatus
+  total_amount: number
+  rejected_reason: string | null
+  items: FoodOrderLine[]
+  created_at: string
+  updated_at: string
+}
+
+export interface FoodOrderStats {
+  total_orders: number
+  pending_orders: number
+  accepted_orders: number
+  rejected_orders: number
+  completed_orders: number
+  total_revenue: number
+  revenue_today: number
+  orders_today: number
+}
+
+export interface CreateMenuItemInput {
+  hotel_id: number
+  category?: MenuCategory
+  name: string
+  name_en?: string
+  description?: string
+  description_en?: string
+  price: number
+  image_url?: string
+  sort_order?: number
+  is_available?: boolean
+}
+
+export interface UpdateMenuItemInput {
+  category?: MenuCategory
+  name?: string
+  name_en?: string
+  description?: string
+  description_en?: string
+  price?: number
+  image_url?: string
+  sort_order?: number
+  is_available?: boolean
+}
+
+export interface CreateFoodOrderInput {
+  hotel_id: number
+  service_id?: number
+  room_number?: string
+  customer_name?: string
+  customer_phone?: string
+  note?: string
+  items: { menu_item_id: number; quantity: number }[]
+}
+
+export const getPublicMenu = (hotelId: number, lang?: string) =>
+  fetchApi<MenuItem[]>(`/food-order/menu/hotel/${hotelId}${lang ? `?lang=${lang}` : ''}`)
+
+export const createFoodOrder = (data: CreateFoodOrderInput) =>
+  fetchApi<FoodOrder>('/food-order/orders', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+export const getFoodOrder = (id: number) => fetchApi<FoodOrder>(`/food-order/orders/${id}`)
+
+export const getAdminMenu = (hotelId: number) =>
+  fetchApi<MenuItem[]>(`/food-order/admin/menu/hotel/${hotelId}`)
+
+export const createMenuItem = (data: CreateMenuItemInput) =>
+  fetchApi<MenuItem>('/food-order/admin/menu', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+
+export const updateMenuItem = (id: number, data: UpdateMenuItemInput) =>
+  fetchApi<MenuItem>(`/food-order/admin/menu/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+
+export const deleteMenuItem = (id: number) =>
+  fetchApi<void>(`/food-order/admin/menu/${id}`, { method: 'DELETE' })
+
+export const getAdminFoodOrders = (hotelId: number, status?: FoodOrderStatus) =>
+  fetchApi<FoodOrder[]>(
+    `/food-order/admin/orders/hotel/${hotelId}${status ? `?status=${status}` : ''}`,
+  )
+
+export const updateFoodOrderStatus = (
+  id: number,
+  data: { status: FoodOrderStatus; rejected_reason?: string },
+) =>
+  fetchApi<FoodOrder>(`/food-order/admin/orders/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+
+export const getFoodOrderStats = (hotelId: number) =>
+  fetchApi<FoodOrderStats>(`/food-order/admin/stats/hotel/${hotelId}`)
+
+export const getPendingOrderCount = (hotelId: number) =>
+  fetchApi<number>(`/food-order/admin/pending-count/hotel/${hotelId}`)
 
 // Chat APIs
 export const createChatSession = (data: CreateSessionInput) =>
