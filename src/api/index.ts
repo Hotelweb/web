@@ -495,7 +495,6 @@ export const sendCustomerMessage = (
 
 export const sendStaffMessage = (
   sessionId: number,
-  userId: number,
   data: {
     message?: string
     source_language: string
@@ -504,7 +503,7 @@ export const sendStaffMessage = (
     client_message_id?: string
   },
 ) =>
-  fetchApi<ChatMessage>(`/chat/sessions/${sessionId}/messages/staff/${userId}`, {
+  fetchApi<ChatMessage>(`/chat/sessions/${sessionId}/messages/staff`, {
     method: 'POST',
     body: JSON.stringify(data),
   })
@@ -516,9 +515,12 @@ export const updateSessionStatus = (sessionId: number, status: ChatSessionStatus
   })
 
 export const markSessionRead = (sessionId: number, by: 'customer' | 'staff') =>
-  fetchApi<{ updated: number }>(`/chat/sessions/${sessionId}/read?by=${by}`, {
-    method: 'POST',
-  })
+  fetchApi<{ updated: number }>(
+    by === 'staff'
+      ? `/chat/sessions/${sessionId}/read/staff`
+      : `/chat/sessions/${sessionId}/read?by=customer`,
+    { method: 'POST' },
+  )
 
 export const getHotelSessions = (hotelId: number) =>
   fetchApi<ChatSession[]>(`/chat/hotel/${hotelId}/sessions`)

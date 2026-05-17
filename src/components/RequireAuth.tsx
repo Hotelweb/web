@@ -68,10 +68,10 @@ function ForbiddenScreen({ reason }: { reason: string }) {
         <h1 className="text-text font-bold text-lg">Không có quyền truy cập</h1>
         <p className="text-text-muted text-sm mt-1">{reason}</p>
         <a
-          href="/"
+          href="/login"
           className="inline-block mt-5 px-4 py-2 rounded-xl text-[13.5px] font-medium text-text-muted bg-white border border-border hover:bg-gray-50 transition-colors"
         >
-          Về trang chủ
+          Về đăng nhập
         </a>
       </div>
     </div>

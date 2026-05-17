@@ -41,7 +41,7 @@ export function LoginPage() {
         ? '/admin'
         : auth.user.hotel_id
           ? `/admin/${auth.user.hotel_id}/chat`
-          : '/')
+          : '/admin')
     navigate(target, { replace: true })
   }, [auth, fromPath, navigate])
 
@@ -156,10 +156,10 @@ export function LoginPage() {
 
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={() => navigate(-1)}
               className="w-full text-center text-[12.5px] text-text-light hover:text-text-muted cursor-pointer transition-colors"
             >
-              ← Về trang chủ
+              ← Quay lại
             </button>
           </form>
         </div>

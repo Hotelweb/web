@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { API_BASE } from '../api'
 import type { ChatMessage, ChatSession } from '../api'
+import { getToken } from '../lib/auth'
 
 export type ConnectionState = 'connecting' | 'online' | 'offline' | 'reconnecting'
 
@@ -101,12 +102,14 @@ export function useChatSocket(options: UseChatSocketOptions): UseChatSocketResul
   ])
 
   useEffect(() => {
+    const staffToken = role === 'staff' ? getToken() : null
     const socket = io(`${API_BASE}/chat`, {
       transports: ['websocket'],
       reconnection: true,
       reconnectionDelay: 800,
       reconnectionDelayMax: 4000,
       timeout: 8000,
+      auth: staffToken ? { token: staffToken } : {},
     })
     socketRef.current = socket
 
