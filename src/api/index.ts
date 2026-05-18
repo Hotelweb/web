@@ -1,6 +1,6 @@
 import { clearAuth, getToken } from '../lib/auth'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000'
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getToken()
