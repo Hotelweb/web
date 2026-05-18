@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import type { AuthScope } from '../lib/auth'
 
@@ -48,6 +48,14 @@ export function RequireAuth({ scopes, hotelId, children }: RequireAuthProps) {
 }
 
 function ForbiddenScreen({ reason }: { reason: string }) {
+  const auth = useAuth()
+  const dashboardPath =
+    auth?.user.scope === 'system'
+      ? '/admin'
+      : auth?.user.hotel_id
+        ? `/admin/${auth.user.hotel_id}`
+        : '/login'
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background-warm px-6">
       <div className="text-center max-w-sm">
@@ -67,12 +75,12 @@ function ForbiddenScreen({ reason }: { reason: string }) {
         </div>
         <h1 className="text-text font-bold text-lg">Không có quyền truy cập</h1>
         <p className="text-text-muted text-sm mt-1">{reason}</p>
-        <a
-          href="/login"
+        <Link
+          to={dashboardPath}
           className="inline-block mt-5 px-4 py-2 rounded-xl text-[13.5px] font-medium text-text-muted bg-white border border-border hover:bg-gray-50 transition-colors"
         >
-          Về đăng nhập
-        </a>
+          Về dashboard
+        </Link>
       </div>
     </div>
   )

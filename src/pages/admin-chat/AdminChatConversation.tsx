@@ -39,6 +39,7 @@ type AdminChatConversationProps = {
   onAttachClick: () => void
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   onRetry: (msg: DisplayMessage) => void
+  onBackToList?: () => void
 }
 
 export function AdminChatConversation({
@@ -59,6 +60,7 @@ export function AdminChatConversation({
   onAttachClick,
   onFileChange,
   onRetry,
+  onBackToList,
 }: AdminChatConversationProps) {
   const guestName = session.customer_name || `Khách #${session.id}`
   const customerLang = getLanguage(session.customer_language)
@@ -66,8 +68,18 @@ export function AdminChatConversation({
   return (
     <>
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="px-5 py-3 border-b border-border-light flex items-center justify-between flex-shrink-0">
+        <header className="px-3 sm:px-5 py-3 border-b border-border-light flex items-center justify-between gap-2 flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
+            {onBackToList ? (
+              <button
+                type="button"
+                onClick={onBackToList}
+                className="md:hidden w-9 h-9 rounded-xl text-text-muted hover:bg-gray-100 flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
+                aria-label="Quay lại danh sách hội thoại"
+              >
+                <BackIcon />
+              </button>
+            ) : null}
             <Avatar name={session.customer_name || `Khách ${session.id}`} />
             <div className="min-w-0">
               <p className="font-semibold text-text text-[15px] truncate">{guestName}</p>
@@ -97,11 +109,11 @@ export function AdminChatConversation({
             </div>
           </div>
 
-          <div className="flex items-center gap-1 text-text-muted">
+          <div className="flex items-center gap-1 text-text-muted flex-shrink-0">
             <button
               type="button"
               onClick={onShowOriginalToggle}
-              className={`flex items-center gap-1.5 h-9 px-3 rounded-xl text-[12px] font-medium transition-colors duration-200 cursor-pointer ${
+              className={`flex items-center gap-1.5 h-9 px-2 sm:px-3 rounded-xl text-[12px] font-medium transition-colors duration-200 cursor-pointer ${
                 showOriginal
                   ? 'bg-indigo-50 text-indigo-700'
                   : 'bg-gray-50 text-text-muted hover:bg-gray-100'
@@ -109,22 +121,24 @@ export function AdminChatConversation({
               aria-pressed={showOriginal}
             >
               <TranslateBubbleIcon className="w-4 h-4" />
-              {showOriginal ? 'Ẩn bản gốc' : 'Xem bản gốc'}
+              <span className="hidden sm:inline">
+                {showOriginal ? 'Ẩn bản gốc' : 'Xem bản gốc'}
+              </span>
             </button>
             <button
-              className="w-9 h-9 rounded-xl hover:bg-gray-100 flex items-center justify-center cursor-pointer"
+              className="hidden sm:flex w-9 h-9 rounded-xl hover:bg-gray-100 items-center justify-center cursor-pointer"
               aria-label="Gọi điện"
             >
               <PhoneIcon className="w-4 h-4" />
             </button>
             <button
-              className="w-9 h-9 rounded-xl hover:bg-gray-100 flex items-center justify-center cursor-pointer"
+              className="hidden sm:flex w-9 h-9 rounded-xl hover:bg-gray-100 items-center justify-center cursor-pointer"
               aria-label="Gọi video"
             >
               <VideoIcon className="w-4 h-4" />
             </button>
             <button
-              className="w-9 h-9 rounded-xl hover:bg-gray-100 flex items-center justify-center cursor-pointer"
+              className="hidden sm:flex w-9 h-9 rounded-xl hover:bg-gray-100 items-center justify-center cursor-pointer"
               aria-label="Tùy chọn"
             >
               <MoreIcon className="w-4 h-4" />
@@ -140,7 +154,7 @@ export function AdminChatConversation({
           }}
         />
 
-        <div className="flex-1 overflow-y-auto px-5 sm:px-8 py-4 space-y-3 bg-gradient-to-b from-white to-gray-50/40">
+        <div className="flex-1 overflow-y-auto px-3 sm:px-8 py-4 space-y-3 bg-gradient-to-b from-white to-gray-50/40">
           {loadingMessages ? <SkeletonList /> : null}
 
           <DateDivider label="Hôm nay" />
@@ -180,7 +194,7 @@ export function AdminChatConversation({
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="px-5 py-3 border-t border-border-light bg-white flex-shrink-0">
+        <div className="px-3 sm:px-5 py-3 border-t border-border-light bg-white flex-shrink-0">
           <input
             type="file"
             accept="image/*"
@@ -238,7 +252,7 @@ export function AdminChatConversation({
               <SendIcon className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-[10.5px] text-text-lighter mt-2 ml-[132px] flex items-center gap-1.5">
+          <p className="hidden sm:flex text-[10.5px] text-text-lighter mt-2 ml-[132px] items-center gap-1.5">
             <TranslateBubbleIcon className="w-3 h-3" />
             <span>
               Tin nhắn của bạn sẽ tự động dịch sang{' '}
@@ -250,5 +264,21 @@ export function AdminChatConversation({
 
       <GuestInfoPanel session={session} />
     </>
+  )
+}
+
+function BackIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-5 h-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
   )
 }

@@ -23,7 +23,7 @@ export function AdminChatPage() {
   }
 
   return (
-    <div className="h-screen flex bg-background-warm overflow-hidden">
+    <div className="h-[100dvh] flex bg-background-warm overflow-hidden">
       <AdminChatSidebar
         hotel={chat.hotel}
         search={chat.search}
@@ -39,9 +39,10 @@ export function AdminChatPage() {
         notifEnabled={chat.notifEnabled}
         onToggleNotifications={chat.toggleNotifications}
         onBack={() => navigate(`/admin/${hotelId}`)}
+        hiddenOnMobile={Boolean(chat.activeSession)}
       />
 
-      <main className="flex-1 flex min-w-0 bg-white">
+      <main className={`flex-1 min-w-0 bg-white ${chat.activeSession ? 'flex' : 'hidden md:flex'}`}>
         {chat.activeSession ? (
           <AdminChatConversation
             session={chat.activeSession}
@@ -61,6 +62,7 @@ export function AdminChatPage() {
             onAttachClick={chat.handleAttachClick}
             onFileChange={chat.handleFileChange}
             onRetry={chat.handleRetry}
+            onBackToList={() => chat.setActiveSession(null)}
           />
         ) : (
           <EmptyState />

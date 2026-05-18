@@ -27,6 +27,7 @@ type AdminChatSidebarProps = {
   notifEnabled: NotificationPermission
   onToggleNotifications: () => void
   onBack: () => void
+  hiddenOnMobile?: boolean
 }
 
 export function AdminChatSidebar({
@@ -44,9 +45,14 @@ export function AdminChatSidebar({
   notifEnabled,
   onToggleNotifications,
   onBack,
+  hiddenOnMobile,
 }: AdminChatSidebarProps) {
   return (
-    <aside className="w-[400px] bg-white border-r border-border-light flex flex-col flex-shrink-0">
+    <aside
+      className={`w-full md:w-[400px] bg-white border-r border-border-light flex-col flex-shrink-0 ${
+        hiddenOnMobile ? 'hidden md:flex' : 'flex'
+      }`}
+    >
       <div className="px-4 pt-4 pb-3 border-b border-border-light flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <button
