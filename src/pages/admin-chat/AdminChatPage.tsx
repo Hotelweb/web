@@ -38,8 +38,7 @@ export function AdminChatPage() {
         onSoundToggle={() => chat.setSoundEnabled((v) => !v)}
         notifEnabled={chat.notifEnabled}
         onToggleNotifications={chat.toggleNotifications}
-        onNavigateFoodOrder={() => navigate(`/admin/${hotelId}/food-order`)}
-        onNavigateServices={() => navigate(`/admin/${hotelId}/services`)}
+        onBack={() => navigate(`/admin/${hotelId}`)}
       />
 
       <main className="flex-1 flex min-w-0 bg-white">

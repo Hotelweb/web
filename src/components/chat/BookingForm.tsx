@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { t } from '../../lib/i18n'
-import { ArrowRightIcon, BackArrowIcon, CalendarIcon, UserCircleIcon } from '../icons/ServiceIcons'
+import { ArrowLeftIcon, ArrowRightIcon, CalendarIcon, UserCircleIcon } from '../icons/ServiceIcons'
 
 export interface BookingFormValue {
   customer_name: string
@@ -71,7 +71,7 @@ export function BookingForm({ language, onSubmit, onSkip, onBack, loading }: Boo
           className="w-9 h-9 rounded-xl hover:bg-gray-100 flex items-center justify-center text-text-muted cursor-pointer"
           aria-label={t(language, 'common.back')}
         >
-          <BackArrowIcon className="w-5 h-5" />
+          <ArrowLeftIcon className="w-5 h-5" />
         </button>
         <div className="min-w-0">
           <h3 className="text-[16px] font-bold text-text leading-tight">

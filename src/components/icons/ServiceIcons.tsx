@@ -226,11 +226,13 @@ export const ChevronDownIcon = ({ className = 'w-5 h-5' }: IconProps = {}) => (
   </svg>
 )
 
-export const BackArrowIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
+export const ArrowLeftIcon = ({ className = 'w-6 h-6' }: IconProps = {}) => (
   <svg viewBox="0 0 24 24" className={className} {...baseProps}>
     <path d="m15 18-6-6 6-6" />
   </svg>
 )
+
+export const BackArrowIcon = ArrowLeftIcon
 
 export const GlobeIcon = ({ className = 'w-4 h-4' }: IconProps = {}) => (
   <svg viewBox="0 0 24 24" className={className} {...baseProps}>

@@ -188,25 +188,29 @@ export function AdminChatConversation({
             className="hidden"
             onChange={onFileChange}
           />
-          <div className="flex items-end gap-1.5">
-            <CannedResponses onSelect={onInputChange} />
-            <button
-              type="button"
-              onClick={onAttachClick}
-              className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center text-text-muted cursor-pointer flex-shrink-0 transition-colors duration-200"
-              aria-label="Đính kèm tệp"
-            >
-              <PaperclipIcon className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              onClick={onAttachClick}
-              className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center text-text-muted cursor-pointer flex-shrink-0 transition-colors duration-200"
-              aria-label="Đính kèm ảnh"
-            >
-              <ImageIcon className="w-5 h-5" />
-            </button>
-            <div className="flex-1 relative">
+          <div className="flex items-center gap-2">
+            <div className="h-11 flex items-center">
+              <CannedResponses onSelect={onInputChange} />
+            </div>
+            <div className="h-11 flex items-center gap-1">
+              <button
+                type="button"
+                onClick={onAttachClick}
+                className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center text-text-muted cursor-pointer flex-shrink-0 transition-colors duration-200"
+                aria-label="Đính kèm tệp"
+              >
+                <PaperclipIcon className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={onAttachClick}
+                className="w-10 h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center text-text-muted cursor-pointer flex-shrink-0 transition-colors duration-200"
+                aria-label="Đính kèm ảnh"
+              >
+                <ImageIcon className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 relative min-w-0">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -214,11 +218,11 @@ export function AdminChatConversation({
                 onKeyDown={onKeyDown}
                 rows={1}
                 placeholder={`Nhập tin nhắn (sẽ tự dịch sang ${customerLang.nativeName})…`}
-                className="w-full max-h-[140px] resize-none px-4 py-2.5 rounded-2xl bg-gray-50 text-[14px] focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:bg-white border border-border-light focus:border-indigo-300 transition-all placeholder:text-text-lighter pr-9"
-                style={{ minHeight: '40px' }}
+                className="block w-full h-11 max-h-[140px] resize-none px-4 py-3 rounded-2xl bg-gray-50 text-[14px] leading-5 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:bg-white border border-border-light focus:border-indigo-300 transition-all placeholder:text-text-lighter pr-10 overflow-y-auto"
               />
               <button
-                className="absolute right-2 bottom-1.5 w-7 h-7 rounded-full hover:bg-gray-200 flex items-center justify-center text-text-muted cursor-pointer"
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full hover:bg-gray-200 flex items-center justify-center text-text-muted cursor-pointer transition-colors"
                 aria-label="Thêm emoji"
               >
                 <SmileIcon className="w-4 h-4" />
@@ -228,13 +232,13 @@ export function AdminChatConversation({
               type="button"
               onClick={onSend}
               disabled={!input.trim()}
-              className="w-10 h-10 rounded-xl gradient-indigo text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:shadow-card-hover transition-all duration-200 flex-shrink-0 active:scale-95"
+              className="w-11 h-11 rounded-xl gradient-indigo text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:shadow-card-hover transition-all duration-200 flex-shrink-0 active:scale-95"
               aria-label="Gửi tin nhắn"
             >
               <SendIcon className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-[10.5px] text-text-lighter mt-2 px-1 flex items-center gap-1.5">
+          <p className="text-[10.5px] text-text-lighter mt-2 ml-[132px] flex items-center gap-1.5">
             <TranslateBubbleIcon className="w-3 h-3" />
             <span>
               Tin nhắn của bạn sẽ tự động dịch sang{' '}

@@ -42,7 +42,7 @@ export function RootRedirect() {
   }
 
   if (auth.user.hotel_id) {
-    return <Navigate to={`/admin/${auth.user.hotel_id}/chat`} replace />
+    return <Navigate to={`/admin/${auth.user.hotel_id}`} replace />
   }
 
   return <Navigate to="/login" replace />

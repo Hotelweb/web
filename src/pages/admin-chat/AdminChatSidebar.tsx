@@ -1,11 +1,11 @@
 import type { ChatSession, Hotel } from '../../api'
 import { UserMenu } from '../../components/UserMenu'
 import {
+  ArrowLeftIcon,
   BellIcon,
   BellOffIcon,
   PlusIcon,
   SearchIcon,
-  ServicesIcon,
   VolumeIcon,
   VolumeOffIcon,
 } from '../../components/icons/ServiceIcons'
@@ -26,8 +26,7 @@ type AdminChatSidebarProps = {
   onSoundToggle: () => void
   notifEnabled: NotificationPermission
   onToggleNotifications: () => void
-  onNavigateFoodOrder: () => void
-  onNavigateServices: () => void
+  onBack: () => void
 }
 
 export function AdminChatSidebar({
@@ -44,27 +43,19 @@ export function AdminChatSidebar({
   onSoundToggle,
   notifEnabled,
   onToggleNotifications,
-  onNavigateFoodOrder,
-  onNavigateServices,
+  onBack,
 }: AdminChatSidebarProps) {
   return (
     <aside className="w-[400px] bg-white border-r border-border-light flex flex-col flex-shrink-0">
       <div className="px-4 pt-4 pb-3 border-b border-border-light flex flex-col gap-3">
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-between gap-3">
           <button
-            onClick={onNavigateFoodOrder}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[12px] font-medium text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100 cursor-pointer transition-colors"
-            title="Quản lý đặt đồ ăn & nước uống"
+            onClick={onBack}
+            className="w-9 h-9 rounded-xl text-text-muted bg-white border border-border-light hover:bg-gray-50 flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
+            aria-label="Quay lại trang quản trị"
+            title="Quay lại trang quản trị"
           >
-            Đặt món
-          </button>
-          <button
-            onClick={onNavigateServices}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[12px] font-medium text-text-muted bg-white border border-border-light hover:bg-emerald-50/60 hover:text-primary cursor-pointer transition-colors"
-            title="Quản lý dịch vụ khách sạn"
-          >
-            <ServicesIcon className="w-3.5 h-3.5" />
-            Dịch vụ
+            <ArrowLeftIcon className="w-4 h-4" />
           </button>
           <UserMenu size="sm" />
         </div>

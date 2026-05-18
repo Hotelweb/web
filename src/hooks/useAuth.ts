@@ -38,6 +38,7 @@ function isSameAuth(a: AuthState | null, b: AuthState | null): boolean {
     a.user.hotel_id === b.user.hotel_id &&
     a.user.email === b.user.email &&
     a.user.full_name === b.user.full_name &&
+    a.user.avatar_url === b.user.avatar_url &&
     a.user.is_active === b.user.is_active
   )
 }

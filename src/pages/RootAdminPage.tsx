@@ -219,9 +219,9 @@ export function RootAdminPage() {
                   deleting={deletingId === hotel.id}
                   onEdit={() => setEditingHotel(hotel)}
                   onOpenPublic={() => navigate(`/hotel/${hotel.slug}`)}
-                  onOpenDashboard={() => navigate(`/admin/${hotel.id}/chat`)}
+                  onOpenDashboard={() => navigate(`/admin/${hotel.id}`)}
                   onOpenServices={() => navigate(`/admin/${hotel.id}/services`)}
-                  onOpenUserDashboard={() => navigate(`/admin/${hotel.id}/chat`)}
+                  onOpenUserDashboard={() => navigate(`/admin/${hotel.id}`)}
                   onDelete={() => handleDelete(hotel)}
                 />
               ))}

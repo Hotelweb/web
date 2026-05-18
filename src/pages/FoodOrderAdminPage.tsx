@@ -19,7 +19,7 @@ import {
 } from '../api'
 import { ImageUploader } from '../components/ImageUploader'
 import { UserMenu } from '../components/UserMenu'
-import { BackArrowIcon, PlusIcon, TrashIcon } from '../components/icons/ServiceIcons'
+import { ArrowLeftIcon, PlusIcon, TrashIcon } from '../components/icons/ServiceIcons'
 import { formatVnd } from '../lib/currency'
 import { playNotificationSound } from '../lib/notifications'
 
@@ -81,7 +81,10 @@ export function FoodOrderAdminPage() {
   }, [hotelId])
 
   useEffect(() => {
-    void loadAll()
+    let cancelled = false
+    void Promise.resolve().then(() => {
+      if (!cancelled) void loadAll()
+    })
     const id = window.setInterval(() => {
       void (async () => {
         try {
@@ -90,17 +93,22 @@ export function FoodOrderAdminPage() {
             getPendingOrderCount(hotelId),
             getFoodOrderStats(hotelId),
           ])
-          if (p > pendingCount && pendingCount > 0) playNotificationSound()
+          setPendingCount((prev) => {
+            if (p > prev && prev > 0) playNotificationSound()
+            return p
+          })
           setOrders(o)
-          setPendingCount(p)
           setStats(s)
         } catch {
           // ignore poll errors
         }
       })()
     }, 15000)
-    return () => window.clearInterval(id)
-  }, [hotelId, loadAll, pendingCount])
+    return () => {
+      cancelled = true
+      window.clearInterval(id)
+    }
+  }, [hotelId, loadAll])
 
   const filteredOrders =
     orderFilter === 'all' ? orders : orders.filter((o) => o.status === orderFilter)
@@ -148,11 +156,11 @@ export function FoodOrderAdminPage() {
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <button
-              onClick={() => navigate(`/admin/${hotelId}/services`)}
+              onClick={() => navigate(`/admin/${hotelId}`)}
               className="w-9 h-9 rounded-xl text-text-muted hover:bg-gray-100 flex items-center justify-center cursor-pointer"
               aria-label="Quay lại"
             >
-              <BackArrowIcon className="w-5 h-5" />
+              <ArrowLeftIcon className="w-5 h-5" />
             </button>
             <div className="min-w-0">
               <h1 className="text-xl font-bold text-text truncate">Đặt đồ ăn & nước uống</h1>
