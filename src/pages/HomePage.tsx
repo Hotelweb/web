@@ -151,7 +151,7 @@ function AdminLink({
   if (auth.user.hotel_id) {
     return (
       <button
-        onClick={() => onNavigate(`/admin/${auth.user.hotel_id}/chat`)}
+        onClick={() => onNavigate(`/admin/${auth.user.hotel_id}`)}
         className="text-[12.5px] font-medium text-primary hover:underline cursor-pointer"
       >
         {lang === 'VN' ? 'Vào dashboard →' : 'Open dashboard →'}

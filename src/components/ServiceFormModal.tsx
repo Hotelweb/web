@@ -66,7 +66,7 @@ export function ServiceFormModal({
   const [activeLang, setActiveLang] = useState<ServiceLanguage>(DEFAULT_LANG)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const titleInputRef = useRef<HTMLInputElement>(null)
+  const formBodyRef = useRef<HTMLFormElement>(null)
 
   // -------------------------------------------------------------------------
   // Initialise form whenever the modal opens with new data
@@ -106,7 +106,9 @@ export function ServiceFormModal({
       }
     })
 
-    const t = window.setTimeout(() => titleInputRef.current?.focus(), 80)
+    const t = window.setTimeout(() => {
+      formBodyRef.current?.scrollTo({ top: 0 })
+    }, 0)
     return () => {
       cancelled = true
       window.clearTimeout(t)
@@ -295,6 +297,7 @@ export function ServiceFormModal({
 
         {/* Body */}
         <form
+          ref={formBodyRef}
           onSubmit={handleSubmit}
           className="flex-1 overflow-y-auto px-6 py-5 space-y-6 min-h-0"
         >
@@ -434,7 +437,6 @@ export function ServiceFormModal({
               <div className="space-y-3">
                 <Field label="Tiêu đề" required>
                   <input
-                    ref={titleInputRef}
                     type="text"
                     value={activeDraft.title}
                     onChange={(e) => updateActiveDraft({ title: e.target.value })}

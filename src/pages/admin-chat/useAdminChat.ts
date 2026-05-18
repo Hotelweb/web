@@ -393,6 +393,7 @@ export function useAdminChat(hotelId: number) {
     hotel,
     loading,
     activeSession,
+    setActiveSession,
     messages,
     input,
     setInput,

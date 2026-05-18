@@ -12,7 +12,7 @@ import { ServiceDetailModal } from '../components/ServiceDetailModal'
 import { UserMenu } from '../components/UserMenu'
 import { getIconEntry, isIconUrl } from '../lib/serviceCatalog'
 import {
-  BackArrowIcon,
+  ArrowLeftIcon,
   EditIcon,
   EyeIcon,
   ImagePlaceholderIcon,
@@ -142,11 +142,11 @@ export function HotelServicesAdminPage() {
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(`/admin/${hotelId}`)}
               className="w-9 h-9 rounded-xl text-text-muted hover:bg-gray-100 flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
               aria-label="Quay lại"
             >
-              <BackArrowIcon className="w-5 h-5" />
+              <ArrowLeftIcon className="w-5 h-5" />
             </button>
             <div className="min-w-0">
               <h1
@@ -161,27 +161,6 @@ export function HotelServicesAdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <UserMenu size="sm" />
-            <button
-              onClick={() => navigate(`/admin/${hotelId}/chat`)}
-              className="px-3.5 py-2 rounded-xl text-[13px] font-medium text-text-muted bg-green-300 border border-green-200 hover:bg-green-100 cursor-pointer transition-colors"
-            >
-              Tin nhắn
-            </button>
-            {hotel ? (
-              <button
-                onClick={() => navigate(`/hotel/${hotel.slug}`)}
-                className="px-3.5 py-2 rounded-xl text-[13px] font-medium text-text-muted bg-green-300 border border-green-200 hover:bg-green-100 cursor-pointer transition-colors"
-              >
-                Xem trang khách
-              </button>
-            ) : null}
-            <button
-              onClick={() => navigate(`/admin/${hotelId}/food-order`)}
-              className="px-3.5 py-2 rounded-xl text-[13px] font-medium text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100 cursor-pointer transition-colors"
-            >
-              Quản lý đặt món
-            </button>
             <button
               onClick={() => setModal({ kind: 'create' })}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13.5px] font-semibold text-white gradient-primary shadow-card hover:shadow-card-hover cursor-pointer transition-all"
@@ -189,6 +168,7 @@ export function HotelServicesAdminPage() {
               <PlusIcon className="w-4 h-4" />
               Thêm dịch vụ
             </button>
+            <UserMenu size="sm" />
           </div>
         </div>
       </header>

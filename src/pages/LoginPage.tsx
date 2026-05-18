@@ -40,7 +40,7 @@ export function LoginPage() {
       (auth.user.scope === 'system'
         ? '/admin'
         : auth.user.hotel_id
-          ? `/admin/${auth.user.hotel_id}/chat`
+          ? `/admin/${auth.user.hotel_id}`
           : '/admin')
     navigate(target, { replace: true })
   }, [auth, fromPath, navigate])

@@ -297,6 +297,20 @@ export const uploadImage = async (
 export const getHotelUsers = (hotelId: number) =>
   fetchApi<HotelUser[]>(`/hotel-users?hotel_id=${hotelId}`)
 
+export interface UpdateHotelUserInput {
+  email?: string
+  password?: string
+  full_name?: string
+  avatar_url?: string
+  is_active?: boolean
+}
+
+export const updateHotelUser = (id: number, data: UpdateHotelUserInput) =>
+  fetchApi<HotelUser>(`/hotel-users/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+
 // Services APIs
 export const getHotelServices = (hotelId: number, lang?: string) =>
   fetchApi<HotelService[]>(`/services/hotel/${hotelId}${lang ? `?lang=${lang}` : ''}`)
@@ -552,6 +566,7 @@ export interface LoginResponse {
     full_name: string
     scope: 'system' | 'hotel'
     hotel_id?: number
+    avatar_url?: string | null
     is_active: boolean
   }
 }

@@ -14,6 +14,7 @@ export interface AuthUser {
   full_name: string
   scope: AuthScope
   hotel_id?: number
+  avatar_url?: string | null
   is_active: boolean
 }
 

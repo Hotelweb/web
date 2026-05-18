@@ -151,14 +151,7 @@ export function RootAdminPage() {
               Quản lý các cơ sở khách sạn và quản trị viên
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <UserMenu subtitle="Quản trị hệ thống" />
-            <button
-              onClick={() => navigate('/')}
-              className="px-3.5 py-2 rounded-xl text-[13px] font-medium text-text-muted bg-white border border-border hover:bg-gray-50 cursor-pointer transition-colors"
-            >
-              Trang chủ
-            </button>
+          <div className="flex items-center justify-end gap-2 flex-wrap">
             <button
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13.5px] font-semibold text-white gradient-primary shadow-card hover:shadow-card-hover cursor-pointer transition-all"
@@ -166,6 +159,7 @@ export function RootAdminPage() {
               <PlusIcon className="w-4 h-4" />
               Thêm cơ sở
             </button>
+            <UserMenu size="sm" subtitle="Quản trị hệ thống" />
           </div>
         </div>
       </header>
@@ -219,9 +213,9 @@ export function RootAdminPage() {
                   deleting={deletingId === hotel.id}
                   onEdit={() => setEditingHotel(hotel)}
                   onOpenPublic={() => navigate(`/hotel/${hotel.slug}`)}
-                  onOpenDashboard={() => navigate(`/admin/${hotel.id}/chat`)}
+                  onOpenDashboard={() => navigate(`/admin/${hotel.id}`)}
                   onOpenServices={() => navigate(`/admin/${hotel.id}/services`)}
-                  onOpenUserDashboard={() => navigate(`/admin/${hotel.id}/chat`)}
+                  onOpenUserDashboard={() => navigate(`/admin/${hotel.id}`)}
                   onDelete={() => handleDelete(hotel)}
                 />
               ))}

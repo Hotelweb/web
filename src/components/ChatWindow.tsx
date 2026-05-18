@@ -521,16 +521,16 @@ export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
                 className="hidden"
                 onChange={handleFileChange}
               />
-              <div className="flex items-end gap-1.5">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleAttachClick}
-                  className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-text-muted cursor-pointer flex-shrink-0 transition-colors duration-200"
+                  className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-text-muted cursor-pointer flex-shrink-0 transition-colors duration-200"
                   aria-label={t(lang, 'chat.attach_image')}
                 >
                   <ImageIcon className="w-5 h-5" />
                 </button>
-                <div className="flex-1 relative">
+                <div className="flex-1 relative min-w-0">
                   <textarea
                     ref={inputRef}
                     value={input}
@@ -543,12 +543,11 @@ export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
                     }}
                     rows={1}
                     placeholder={t(lang, 'chat.input_placeholder')}
-                    className="w-full max-h-[120px] resize-none px-4 py-2.5 rounded-2xl bg-gray-100 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white border border-transparent focus:border-primary/30 transition-all placeholder:text-text-lighter pr-9"
-                    style={{ minHeight: '40px' }}
+                    className="block w-full h-11 max-h-[120px] resize-none px-4 py-3 rounded-2xl bg-gray-100 text-[14px] leading-5 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white border border-transparent focus:border-primary/30 transition-all placeholder:text-text-lighter pr-10 overflow-y-auto"
                   />
                   <button
                     type="button"
-                    className="absolute right-2 bottom-1.5 w-7 h-7 rounded-full hover:bg-gray-200 flex items-center justify-center text-text-muted cursor-pointer"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full hover:bg-gray-200 flex items-center justify-center text-text-muted cursor-pointer transition-colors"
                     aria-label="Add emoji"
                   >
                     <SmileIcon className="w-4 h-4" />
@@ -558,7 +557,7 @@ export function ChatWindow({ hotelId, hotelName, onClose }: ChatWindowProps) {
                   type="button"
                   onClick={handleSend}
                   disabled={!input.trim()}
-                  className="w-10 h-10 rounded-full gradient-primary text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:shadow-card-hover transition-all duration-200 flex-shrink-0 active:scale-95"
+                  className="w-11 h-11 rounded-full gradient-primary text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:shadow-card-hover transition-all duration-200 flex-shrink-0 active:scale-95"
                   aria-label={t(lang, 'chat.send')}
                 >
                   <SendIcon className="w-4 h-4" />

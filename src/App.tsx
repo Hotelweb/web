@@ -7,6 +7,7 @@ import { LoginPage } from './pages/LoginPage'
 import { HotelServicesAdminPage } from './pages/HotelServicesAdminPage'
 import { FoodOrderPage } from './pages/FoodOrderPage'
 import { FoodOrderAdminPage } from './pages/FoodOrderAdminPage'
+import { HotelAdminHomePage } from './pages/HotelAdminHomePage'
 import { RequireAuth } from './components/RequireAuth'
 
 function App() {
@@ -26,12 +27,23 @@ function App() {
               </RequireAuth>
             }
           />
+          <Route path="/admin/:hotelId" element={<HotelAdminHomeRoute />} />
           <Route path="/admin/:hotelId/chat" element={<AdminChatRoute />} />
           <Route path="/admin/:hotelId/services" element={<HotelServicesAdminRoute />} />
           <Route path="/admin/:hotelId/food-order" element={<FoodOrderAdminRoute />} />
         </Routes>
       </GuestRouteGuard>
     </BrowserRouter>
+  )
+}
+
+function HotelAdminHomeRoute() {
+  const { hotelId } = useParams<{ hotelId: string }>()
+  const parsed = hotelId ? Number(hotelId) : undefined
+  return (
+    <RequireAuth scopes={['system', 'hotel']} hotelId={parsed}>
+      <HotelAdminHomePage />
+    </RequireAuth>
   )
 }
 
