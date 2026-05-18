@@ -24,17 +24,14 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
 
-      - name: Build
-        run: pnpm build
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=production --token=${{ vars.VERCEL_TOKEN }}
+
+      - name: Build with Vercel
+        run: vercel build --prod --token=${{ vars.VERCEL_TOKEN }}
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ vars.VERCEL_TOKEN }}
-          vercel-org-id: ${{ vars.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ vars.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: ./
+        run: vercel deploy --prebuilt --prod --token=${{ vars.VERCEL_TOKEN }}
